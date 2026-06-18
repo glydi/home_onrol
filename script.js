@@ -223,6 +223,48 @@
     }, 120);
   }, { passive: true });
 
+  // ----- user scroll sensitivity (taller pin = finer/slower turns) -----
+  // base height comes from CSS (.pin-wrap height); higher mult = shorter pin = faster turns
+  const BASE_VH = 1180;
+  const sensRange = document.getElementById('sensRange');
+  const sensVal = document.getElementById('sensVal');
+  const sensBtn = document.getElementById('sensBtn');
+  const sensPop = document.getElementById('sensPop');
+  function applySens(mult, keepPos) {
+    mult = Math.max(0.5, Math.min(2, mult));
+    const m0 = keepPos ? metrics() : null;                 // preserve position within the hall
+    const p = m0 ? (window.scrollY - m0.top) / m0.range : 0;
+    pin.style.height = Math.round(BASE_VH / mult) + 'vh';
+    geometry();
+    if (m0) { const m = metrics(); window.scrollTo(0, m.top + Math.max(0, Math.min(1, p)) * m.range); }
+    if (sensVal) sensVal.textContent = mult.toFixed(1) + '×';
+    if (sensRange) sensRange.value = String(mult);
+  }
+  let savedSens = 1;
+  try { savedSens = parseFloat(localStorage.getItem('onrol-sens')) || 1; } catch (e) {}
+  if (sensRange) {
+    sensRange.addEventListener('input', () => {
+      const v = parseFloat(sensRange.value);
+      applySens(v, true);
+      try { localStorage.setItem('onrol-sens', String(v)); } catch (e) {}
+    });
+  }
+  if (sensBtn && sensPop) {
+    sensBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const willOpen = sensPop.hasAttribute('hidden');
+      sensPop.toggleAttribute('hidden', !willOpen);
+      sensBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+    });
+    document.addEventListener('click', (e) => {
+      if (!sensPop.contains(e.target) && e.target !== sensBtn) {
+        sensPop.setAttribute('hidden', '');
+        sensBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+  applySens(savedSens, false);
+
   // always begin on the first slide (no restored scroll position)
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
   window.scrollTo(0, 0);
