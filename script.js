@@ -3,9 +3,8 @@
 if (typeof window.__useHall === 'undefined') {
   const mq = (q) => !!(window.matchMedia && window.matchMedia(q).matches);
   const lowEnd = mq('(prefers-reduced-motion: reduce)') || (navigator.deviceMemory || 8) <= 4 || (navigator.hardwareConcurrency || 8) <= 4;
-  window.__useHall = !mq('(pointer: coarse)') && !mq('(max-width: 1024px)') && !lowEnd;
+  window.__useHall = true;                       // hall runs on all devices (responsive)
   window.__lowFx = lowEnd || mq('(pointer: coarse)');
-  if (!window.__useHall) document.body.classList.add('no-hall');
   if (window.__lowFx) document.body.classList.add('low-fx');
 }
 
@@ -687,34 +686,3 @@ if (typeof window.__useHall === 'undefined') {
   });
 })();
 
-/* ===== Mobile / tablet: minimal scroll-based card rotation =====
-   Gentle conveyor tilt — each vertical slide rotates a few degrees as it
-   passes the viewport centre. Only on the no-hall (slides) path, rAF-
-   throttled, and skipped for reduced-motion. */
-(function () {
-  if (window.__useHall) return;                                   // hall path has its own motion
-  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const cards = Array.prototype.slice.call(document.querySelectorAll('.m-card'));
-  if (!cards.length) return;
-
-  const MAX = window.__lowFx ? 5 : 8;                             // max tilt in degrees
-  let ticking = false;
-  function update() {
-    ticking = false;
-    const vh = window.innerHeight, mid = vh / 2;
-    for (let i = 0; i < cards.length; i++) {
-      const r = cards[i].getBoundingClientRect();
-      if (r.bottom < -60 || r.top > vh + 60) continue;            // skip off-screen cards
-      const c = r.top + r.height / 2;
-      const d = Math.max(-1, Math.min(1, (c - mid) / vh));        // -1 (top) .. 0 (centre) .. 1 (bottom)
-      const rot = (-d * MAX).toFixed(2);
-      const scale = (1 - Math.abs(d) * 0.04).toFixed(3);
-      cards[i].style.transform = 'rotateX(' + rot + 'deg) scale(' + scale + ')';
-      cards[i].style.opacity = (1 - Math.abs(d) * 0.3).toFixed(3);
-    }
-  }
-  function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
-  window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', onScroll, { passive: true });
-  update();
-})();

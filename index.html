@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="no-js">
 <!--
   ============================================================
   ONROL — India's AI Execution School.
@@ -25,6 +25,7 @@
   <!-- Device-capability tiers — run before paint to avoid a flash of the heavy hall -->
   <script>
     (function () {
+      document.documentElement.classList.remove('no-js');   // JS is on -> use the 3D hall
       var mq = function (q) { return !!(window.matchMedia && window.matchMedia(q).matches); };
       var reduce = mq('(prefers-reduced-motion: reduce)');
       var touch = mq('(pointer: coarse)');
@@ -32,11 +33,10 @@
       var mem = navigator.deviceMemory || 8;
       var cores = navigator.hardwareConcurrency || 8;
       var lowEnd = reduce || mem <= 4 || cores <= 4;
-      var useHall = !touch && !narrow && !lowEnd;
+      // the 3D hall now runs on every device (responsive); low-fx still trims graphics
       var c = document.body.classList;
-      if (!useHall) c.add('no-hall');
       if (lowEnd || touch) c.add('low-fx');
-      window.__useHall = useHall;
+      window.__useHall = true;
       window.__lowFx = lowEnd || touch;
     })();
   </script>

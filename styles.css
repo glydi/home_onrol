@@ -367,12 +367,11 @@ body.orange-cursor, body.orange-cursor * { cursor: none !important; }
 }
 .bot__input::placeholder { color: rgba(255,232,218,.4); }
 
-/* ===== Mobile fallback slides ===== */
-.m-slides { display: none; perspective: 1200px; perspective-origin: 50% 50%; }
+/* ===== Vertical slides (no-JS fallback only) ===== */
+.m-slides { display: none; }
 .m-card {
   min-height: 86vh; display: flex; flex-direction: column; justify-content: center;
   gap: 14px; padding: 60px 24px; border-bottom: 1px solid var(--line);
-  transform-origin: center; backface-visibility: hidden; will-change: transform, opacity;
 }
 .m-card .display { font-size: clamp(34px, 10vw, 56px); line-height: 1; }
 .m-card .desc { font-size: 16px; color: var(--muted); max-width: 440px; }
@@ -380,18 +379,13 @@ body.orange-cursor, body.orange-cursor * { cursor: none !important; }
 
 @media (prefers-reduced-motion: reduce) { .orb { animation: none; } .intro__line { animation: none; width: 220px; } }
 
-/* phones (no-JS fallback): drop the heavy 3D hall, show clean vertical slides */
-@media (max-width: 760px) {
-  .pin-wrap, .intro, .coords, .cur-dot { display: none !important; }
-  .m-slides { display: block; }
-  .hdr { position: sticky; background: rgba(12,10,9,.9); backdrop-filter: blur(10px); }
-}
+/* the 3D hall now runs on every device (responsive); the .m-slides vertical
+   fallback only shows when JS is unavailable */
+.no-js .pin-wrap, .no-js .intro { display: none; }
+.no-js .m-slides { display: block; }
 
-/* tablets / touch / low-end (set by JS): same light vertical layout */
-body.no-hall .pin-wrap, body.no-hall .intro, body.no-hall .coords, body.no-hall .cur-dot { display: none !important; }
-body.no-hall .m-slides { display: block; }
-body.no-hall .hdr { position: sticky; background: rgba(12,10,9,.9); backdrop-filter: blur(10px); }
-body.no-hall.light .hdr { background: rgba(255,247,238,.85); }
+/* cubes / 3D objects removed — keep the turning hall, drop the decorations */
+.obj { display: none !important; }
 
 /* low-end: strip the expensive effects (blur, grain, glows, idle animations) */
 body.low-fx .hdr { backdrop-filter: none; }
@@ -491,9 +485,8 @@ body.low-fx .bot__bubble, body.low-fx .bot__face { box-shadow: none; }
   border: 2px solid var(--bg); cursor: pointer;
 }
 .sens__ends { display: flex; justify-content: space-between; font-size: 10px; opacity: .55; }
-/* scroll-speed only matters when the 3D hall runs */
-@media (max-width: 760px) { .settings__row--desktop { display: none; } }
-body.no-hall .settings__row--desktop { display: none; }
+/* hall (and scroll sensitivity) now runs on every device — keep the control visible */
+.no-js .settings__row--desktop { display: none; }
 
 /* ===== Light theme ===== */
 body.light {
