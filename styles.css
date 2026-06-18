@@ -64,17 +64,12 @@ em { font-style: normal; color: var(--gold); }
   z-index: 1;
 }
 .hall.grabbing { cursor: grabbing; }
-/* revolving orange bloom — a PRE-DITHERED PNG (noise baked in), so there is no
-   live gradient to band. It orbits the centre via a transform: pure GPU
-   compositing, no filter = most efficient, and zero visible layers/rings. */
+/* static orange bloom — a PRE-DITHERED PNG (noise baked in), so there is no
+   live gradient to band and no filter = most efficient, zero visible layers. */
 .hall::before {
   content: ""; position: absolute; inset: -15%; z-index: 0; pointer-events: none;
   background: url("glow.png") center / cover no-repeat;
-  transform-origin: 50% 50%;
-  animation: glowOrbit 32s linear infinite;
-  will-change: transform;
 }
-@keyframes glowOrbit { to { transform: rotate(360deg); } }
 /* grain dither — breaks up any residual gradient banding so no rings/layers show */
 .hall::after {
   content: ""; position: absolute; inset: 0; z-index: 51; pointer-events: none;
@@ -371,7 +366,7 @@ body.orange-cursor, body.orange-cursor * { cursor: none !important; }
 .m-card .desc { font-size: 16px; color: var(--muted); max-width: 440px; }
 .m-card .link { color: var(--gold); }
 
-@media (prefers-reduced-motion: reduce) { .orb { animation: none; } .intro__line { animation: none; width: 220px; } .hall::before { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .orb { animation: none; } .intro__line { animation: none; width: 220px; } }
 
 /* the 3D hall now runs on every device (responsive); the .m-slides vertical
    fallback only shows when JS is unavailable */
