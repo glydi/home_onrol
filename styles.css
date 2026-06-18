@@ -310,14 +310,22 @@ body.orange-cursor, body.orange-cursor * { cursor: none !important; }
   position: fixed; right: 26px; bottom: 26px; z-index: 90;
   display: flex; flex-direction: column; align-items: flex-end; gap: 12px;
 }
+/* bubble sits to the LEFT of Vector, beside him, with a tail pointing at him */
 .bot__bubble {
+  position: absolute; right: calc(100% + 14px); bottom: 6px;
   font-family: 'Press Start 2P', monospace; font-size: 9px; line-height: 1.7;
   color: var(--ink); background: rgba(20,12,6,.92);
-  border: 2px solid var(--gold); padding: 10px 12px; max-width: 210px;
+  border: 2px solid var(--gold); padding: 10px 12px; max-width: 220px;
   box-shadow: 0 0 18px rgba(255,106,31,.4);
   transition: opacity .3s ease, transform .3s ease;
 }
-.bot__bubble.is-hidden { opacity: 0; transform: translateY(6px); pointer-events: none; }
+.bot__bubble::after {   /* tail pointing right toward Vector */
+  content: ""; position: absolute; right: -7px; bottom: 12px;
+  width: 9px; height: 9px; background: rgba(20,12,6,.92);
+  border-right: 2px solid var(--gold); border-top: 2px solid var(--gold);
+  transform: rotate(45deg);
+}
+.bot__bubble.is-hidden { opacity: 0; transform: translateX(8px); pointer-events: none; }
 .bot__name { font-family: var(--alt); font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gold); opacity: .85; }
 /* 7×7 pixel-matrix bot — lights up to make faces */
 .bot__face {
@@ -628,21 +636,21 @@ body.light .bot__bubble, body.light .bot__input { color: #fff3ea; }
   box-shadow: 0 0 7px rgba(255,170,90,.5); border-radius: 2px;
   transition: height .12s linear;
 }
-/* navigation dots — click to jump (redirect); soft hover reveals a label */
+/* navigation markers — subtle ticks (no circles); soft hover reveals a label */
 .rail-dot {
-  position: absolute; left: -3px; width: 8px; height: 8px; margin-top: -4px;
-  border-radius: 50%; background: var(--bg); border: 1.5px solid var(--gold-soft);
+  position: absolute; left: -5px; width: 12px; height: 2px; margin-top: -1px;
+  background: var(--gold-soft); border-radius: 1px;
   pointer-events: auto; cursor: pointer;
-  transition: transform .35s ease, background .35s ease, border-color .35s ease;
+  transition: width .35s ease, background .35s ease;
 }
 .rail-dot::after {
   content: attr(data-label);
-  position: absolute; right: 20px; top: 50%; transform: translateY(-50%) translateX(6px);
+  position: absolute; right: 18px; top: 50%; transform: translateY(-50%) translateX(6px);
   font-family: var(--alt); font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
   color: var(--muted); white-space: nowrap; opacity: 0; pointer-events: none;
   transition: opacity .35s ease, transform .35s ease, color .35s ease;
 }
-.rail-dot:hover { transform: scale(1.45); background: var(--gold); border-color: var(--gold); }
+.rail-dot:hover { width: 17px; background: var(--gold); }
 .rail-dot:hover::after { opacity: 1; transform: translateY(-50%) translateX(0); color: var(--ink); }
 body.low-fx .scroll-rail__fill { box-shadow: none; }
 @media (max-width: 560px) { .scroll-rail { right: 11px; height: 46vh; } .rail-dot::after { display: none; } }
