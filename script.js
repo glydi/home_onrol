@@ -500,7 +500,7 @@ if (typeof window.__useHall === 'undefined') {
     window.removeEventListener('touchstart', hide);
     window.removeEventListener('keydown', hide);
   };
-  setTimeout(hide, 1300);                              // was 2400 — quicker
+  setTimeout(hide, 1950);                              // lets the loading bar fill; any scroll/touch/key skips it
   intro.addEventListener('click', hide);
   window.addEventListener('wheel', hide, { passive: true });
   window.addEventListener('touchstart', hide, { passive: true });
