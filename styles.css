@@ -368,10 +368,11 @@ body.orange-cursor, body.orange-cursor * { cursor: none !important; }
 .bot__input::placeholder { color: rgba(255,232,218,.4); }
 
 /* ===== Mobile fallback slides ===== */
-.m-slides { display: none; }
+.m-slides { display: none; perspective: 1200px; perspective-origin: 50% 50%; }
 .m-card {
   min-height: 86vh; display: flex; flex-direction: column; justify-content: center;
   gap: 14px; padding: 60px 24px; border-bottom: 1px solid var(--line);
+  transform-origin: center; backface-visibility: hidden; will-change: transform, opacity;
 }
 .m-card .display { font-size: clamp(34px, 10vw, 56px); line-height: 1; }
 .m-card .desc { font-size: 16px; color: var(--muted); max-width: 440px; }
