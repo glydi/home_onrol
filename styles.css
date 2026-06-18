@@ -59,34 +59,27 @@ em { font-style: normal; color: var(--gold); }
   perspective-origin: 50% 50%;
   overflow: hidden;
   cursor: grab;
-  /* static base: broad ambient fill + a soft vignette — always covers the frame
-     (the revolving lobe orbits on top of this) */
-  background:
-    radial-gradient(125% 105% at 50% 46%, rgba(255,120,48,.06) 0%, rgba(255,110,40,.02) 56%, transparent 88%),
-    radial-gradient(150% 135% at 50% 44%, #1a0c05 0%, #150a04 56%, #110805 84%, var(--bg) 100%);
+  /* deep base — single smooth dark ramp (one stop = no mid band); always covers */
+  background: radial-gradient(150% 130% at 50% 44%, #190c05 0%, var(--bg) 96%);
   z-index: 1;
 }
 .hall.grabbing { cursor: grabbing; }
-/* revolving orange bloom — a single soft, off-centre lobe that ORBITS the centre.
-   It's blurred once (cached as a layer) and spun with a transform, so the rotation
-   is pure GPU compositing — smooth and cheap. Corners stay transparent, revealing
-   the static base beneath, so the spin never leaves empty edges. */
+/* revolving orange bloom — ONE soft off-centre lobe orbiting via transform (pure
+   GPU compositing, no blur = most efficient). A single low-alpha ramp + the grain
+   dither below = a seamless sweep with no visible bands or layers. */
 .hall::before {
   content: ""; position: absolute; inset: -15%; z-index: 0; pointer-events: none;
-  background:
-    radial-gradient(56% 56% at 50% 28%,
-      rgba(255,166,102,.16) 0%, rgba(255,136,64,.07) 50%, rgba(255,116,44,.018) 74%, transparent 90%);
-  filter: blur(44px) saturate(1.1);
+  background: radial-gradient(60% 60% at 50% 30%, rgba(255,146,78,.13) 0%, transparent 78%);
   transform-origin: 50% 50%;
-  animation: glowOrbit 30s linear infinite;
+  animation: glowOrbit 32s linear infinite;
   will-change: transform;
 }
 @keyframes glowOrbit { to { transform: rotate(360deg); } }
-/* faint grain dither to remove gradient banding (the "rings/breaks" in the glow) */
+/* grain dither — breaks up any residual gradient banding so no rings/layers show */
 .hall::after {
   content: ""; position: absolute; inset: 0; z-index: 51; pointer-events: none;
-  opacity: .16; mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: .22; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 /* orange-dot cursor */
