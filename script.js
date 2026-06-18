@@ -589,12 +589,12 @@ if (typeof window.__useHall === 'undefined') {
   nums.forEach((n) => io.observe(n));
 })();
 
-/* ===== Sound: per-slide ambient tone + snap tick (mute toggle) ===== */
+/* ===== Sound: a single soft note on each slide (mute toggle) ===== */
 (function () {
   const btn = document.getElementById('soundBtn');
   if (!btn) return;
   let on = false, ctx = null;
-  const freqs = [196, 233, 261, 311, 349, 392];   // soft pentatonic per slide
+  const NOTE = 392;   // single clean note (G4) — same every slide
   function ensure() { if (!ctx) { try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} } }
   function tone(f, dur, gain) {
     if (!on || !ctx) return;
@@ -611,9 +611,9 @@ if (typeof window.__useHall === 'undefined') {
     on = !on; ensure(); if (ctx && ctx.state === 'suspended') ctx.resume();
     btn.style.color = on ? 'var(--bg)' : '';
     btn.style.background = on ? 'var(--gold)' : '';
-    if (on) tone(330, 0.3);
+    if (on) tone(NOTE, 0.4, 0.04);
   });
-  document.addEventListener('onrol:slide', (e) => { tone(freqs[e.detail] || 261, 0.8, 0.045); tone(880, 0.05, 0.02); });
+  document.addEventListener('onrol:slide', () => { tone(NOTE, 0.6, 0.045); });
 })();
 
 /* ===== Build-with-AI demo (plan → act → done) ===== */
