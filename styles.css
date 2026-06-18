@@ -310,24 +310,58 @@ body.orange-cursor, body.orange-cursor * { cursor: none !important; }
   position: fixed; right: 26px; bottom: 26px; z-index: 90;
   display: flex; flex-direction: column; align-items: flex-end; gap: 12px;
 }
-/* bubble sits to the LEFT of Vector, beside him, with a tail pointing at him */
+/* panel container is transparent; its children carry the look per mode */
+.bot__panel { position: absolute; right: calc(100% + 14px); bottom: 6px; width: 222px; box-sizing: border-box; }
+.bot__head, .bot__ask { display: none; }
+
+/* IDLE: the bubble looks like a speech bubble with a tail */
 .bot__bubble {
-  position: absolute; right: calc(100% + 14px); bottom: 6px;
-  font-family: 'Press Start 2P', monospace; font-size: 9px; line-height: 1.7;
-  color: var(--ink); background: rgba(20,12,6,.92);
-  border: 2px solid var(--gold); padding: 11px 13px;
-  width: 210px; min-height: 58px; box-sizing: border-box;   /* standard size for every message */
+  position: relative;
+  font-family: 'Press Start 2P', monospace; font-size: 9px; line-height: 1.7; color: var(--ink);
+  background: rgba(20,12,6,.92); border: 2px solid var(--gold); border-radius: 4px;
+  padding: 11px 13px; min-height: 58px; box-sizing: border-box;
   display: flex; align-items: center;
   box-shadow: 0 0 18px rgba(255,106,31,.4);
   transition: opacity .3s ease, transform .3s ease;
 }
-.bot__bubble::after {   /* tail pointing right toward Vector */
-  content: ""; position: absolute; right: -7px; bottom: 12px;
-  width: 9px; height: 9px; background: rgba(20,12,6,.92);
-  border-right: 2px solid var(--gold); border-top: 2px solid var(--gold);
+.bot__bubble::after {
+  content: ""; position: absolute; right: -9px; bottom: 12px; width: 9px; height: 9px;
+  background: rgba(20,12,6,.92); border-right: 2px solid var(--gold); border-top: 2px solid var(--gold);
   transform: rotate(45deg);
 }
 .bot__bubble.is-hidden { opacity: 0; transform: translateX(8px); pointer-events: none; }
+
+/* CHAT (asking): the panel becomes one cohesive terminal-style window */
+.bot.asking .bot__panel {
+  border: 2px solid var(--gold); border-radius: 5px;
+  box-shadow: 0 0 30px rgba(255,106,31,.45), inset 0 0 40px rgba(255,106,31,.05);
+  background: repeating-linear-gradient(rgba(255,106,31,.05) 0 1px, transparent 1px 3px), rgba(12,8,4,.97);
+}
+.bot.asking .bot__panel::after {
+  content: ""; position: absolute; right: -9px; bottom: 12px; width: 9px; height: 9px;
+  background: rgba(12,8,4,.97); border-right: 2px solid var(--gold); border-top: 2px solid var(--gold);
+  transform: rotate(45deg);
+}
+.bot.asking .bot__bubble { border: none; background: transparent; box-shadow: none; border-radius: 0; align-items: flex-start; min-height: 46px; }
+.bot.asking .bot__bubble::after { display: none; }
+.bot.asking .bot__bubble.is-hidden { opacity: 1; transform: none; }   /* keep the log visible while chatting */
+.bot__head {
+  align-items: center; gap: 7px; padding: 8px 11px;
+  font-family: var(--alt); font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--gold); border-bottom: 1px dashed var(--gold-soft);
+}
+.bot.asking .bot__head { display: flex; }
+.bot__dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 6px #4ade80; animation: botDot 1.4s ease-in-out infinite; }
+.bot__status { margin-left: auto; color: var(--muted); letter-spacing: 1px; }
+@keyframes botDot { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+.bot.asking .bot__bubble { align-items: flex-start; min-height: 46px; }
+.bot.asking .bot__ask {
+  display: flex; align-items: center; gap: 7px; padding: 8px 11px;
+  border-top: 1px dashed var(--gold-soft);
+}
+.bot__caret { font-family: 'Press Start 2P', monospace; font-size: 9px; color: var(--gold); }
+.bot__send { font-family: var(--alt); font-size: 15px; color: var(--gold); padding: 0 2px; line-height: 1; transition: color .2s, transform .2s; }
+.bot__send:hover { color: var(--peach); transform: translateX(2px); }
 .bot__name { font-family: var(--alt); font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gold); opacity: .85; }
 /* 7×7 pixel-matrix bot — lights up to make faces */
 .bot__face {
@@ -454,13 +488,14 @@ body.low-fx .tap-hint::before, body.low-fx .tap-hint__ring { animation: none; }
 .detail__list li { color: var(--muted); font-size: 16px; padding-left: 22px; position: relative; }
 .detail__list li::before { content: "→"; position: absolute; left: 0; color: var(--gold); }
 
-/* ===== Vector ask input ===== */
-.bot__ask { display: none; }
-.bot.asking .bot__ask { display: block; }
+/* ===== Vector ask input (inside the chat panel) ===== */
 .bot__input {
-  width: 180px; background: rgba(20,12,6,.92); border: 1.5px solid var(--gold);
-  color: var(--ink); font-family: var(--alt); font-size: 12px; padding: 9px 11px; outline: none;
+  flex: 1; min-width: 0; background: rgba(255,240,225,.05);
+  border: 1px solid var(--gold-soft); border-radius: 3px;
+  color: var(--ink); font-family: var(--alt); font-size: 11px; padding: 7px 9px; outline: none;
+  transition: border-color .2s ease;
 }
+.bot__input:focus { border-color: var(--gold); }
 .bot__input::placeholder { color: rgba(255,232,218,.4); }
 
 /* ===== Vertical slides (no-JS fallback only) ===== */

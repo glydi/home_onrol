@@ -268,12 +268,19 @@
 
   <!-- ===== Pixel bot (waits — click to ask) ===== -->
   <div class="bot" id="bot">
-    <div class="bot__bubble" id="botBubble">hi, i'm vector ✦</div>
+    <div class="bot__panel" id="botPanel">
+      <div class="bot__head"><span class="bot__dot"></span>Vector<span class="bot__status">online</span></div>
+      <div class="bot__bubble" id="botBubble">hi, i'm vector ✦</div>
+      <form class="bot__ask" id="botAsk">
+        <span class="bot__caret">&gt;</span>
+        <input class="bot__input" id="botInput" type="text" placeholder="ask vector…" autocomplete="off" />
+        <button class="bot__send" type="submit" aria-label="Send">▸</button>
+      </form>
+    </div>
     <span class="bot__name">Vector</span>
     <button class="bot__face" id="botFace" aria-label="Ask Vector">
       <div class="matrix" id="matrix"></div>
     </button>
-    <form class="bot__ask" id="botAsk"><input class="bot__input" id="botInput" type="text" placeholder="ask vector…" autocomplete="off" /></form>
   </div>
 
   <script src="script.js"></script>
