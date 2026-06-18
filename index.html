@@ -255,9 +255,13 @@
   </main>
 
   <!-- ===== Scroll-progress rail (right edge) ===== -->
-  <div class="scroll-rail" id="scrollRail" aria-hidden="true">
+  <nav class="scroll-rail" id="scrollRail" aria-label="Section navigation">
     <span class="scroll-rail__fill" id="scrollRailFill"></span>
-  </div>
+    <a class="rail-dot" href="#top"    style="top:2%"   data-label="Home"></a>
+    <a class="rail-dot" href="#tracks" style="top:36%"  data-label="Build"></a>
+    <a class="rail-dot" href="#demo"   style="top:64%"  data-label="Try it"></a>
+    <a class="rail-dot" href="#apply"  style="top:98%"  data-label="Apply"></a>
+  </nav>
 
   <!-- ===== Pixel bot (waits — click to ask) ===== -->
   <div class="bot" id="bot">

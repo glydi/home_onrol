@@ -183,9 +183,9 @@ body.orange-cursor, body.orange-cursor * { cursor: none !important; }
 /* in-wall type kept compact so it always fits the slide */
 .wall .display { font-size: clamp(28px, 3.6vw, 56px); line-height: .98; }
 .wall .display--xl { font-size: clamp(32px, 4.2vw, 64px); }
-.wall .sub { font-size: clamp(14px, 1.4vw, 18px); }
-.wall .desc { font-size: clamp(13px, 1.3vw, 16px); }
-.wall .eyebrow { font-size: 12px; }
+.wall .sub { font-size: clamp(16px, 1.7vw, 21px); }
+.wall .desc { font-size: clamp(15px, 1.5vw, 19px); }
+.wall .eyebrow { font-size: 13px; }
 .wall .display, .wall .display--xl { max-width: 100%; overflow-wrap: break-word; }
 .wall--center { align-items: center; text-align: center; }
 
@@ -204,11 +204,11 @@ body.orange-cursor, body.orange-cursor * { cursor: none !important; }
 }
 
 /* typography */
-.eyebrow { font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); }
+.eyebrow { font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); }
 .display { font-family: var(--display); font-weight: 500; font-size: clamp(54px, 9vw, 132px); line-height: .92; letter-spacing: -2px; }
 .display--xl { font-size: clamp(60px, 12vw, 168px); }
-.sub { font-size: clamp(15px, 1.5vw, 19px); color: var(--muted); max-width: 460px; line-height: 1.6; }
-.desc { font-size: clamp(14px, 1.4vw, 17px); color: var(--muted); max-width: 380px; line-height: 1.7; }
+.sub { font-size: clamp(16px, 1.7vw, 21px); color: var(--muted); max-width: 480px; line-height: 1.6; }
+.desc { font-size: clamp(15px, 1.5vw, 19px); color: var(--muted); max-width: 400px; line-height: 1.7; }
 .cue { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-top: 12px; }
 .link { display: inline-block; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; padding-bottom: 6px; border-bottom: 1px solid var(--gold); transition: letter-spacing .3s, color .3s; }
 .link:hover { letter-spacing: 2.5px; color: var(--gold); }
@@ -616,20 +616,36 @@ body.light .bot__bubble, body.light .bot__input { color: #fff3ea; }
   .foot { flex-direction: column; align-items: flex-start; }
 }
 
-/* ===== Scroll-progress rail (right edge) — very thin hairline ===== */
+/* ===== Scroll-progress rail / section navigator (right edge) ===== */
 .scroll-rail {
-  position: fixed; right: 16px; top: 50%; transform: translateY(-50%);
-  width: 1px; height: 42vh; max-height: 380px; border-radius: 1px;
-  background: rgba(255,106,31,.16); overflow: hidden; z-index: 80; pointer-events: none;
+  position: fixed; right: 20px; top: 50%; transform: translateY(-50%);
+  width: 2px; height: 58vh; max-height: 540px; border-radius: 2px;
+  background: rgba(255,106,31,.22); z-index: 80; pointer-events: none;
 }
 .scroll-rail__fill {
-  display: block; width: 100%; height: 0;
+  position: absolute; left: 0; top: 0; width: 100%; height: 0;
   background: linear-gradient(var(--amber), var(--peach));
-  box-shadow: 0 0 6px rgba(255,170,90,.5);
+  box-shadow: 0 0 7px rgba(255,170,90,.5); border-radius: 2px;
   transition: height .12s linear;
 }
+/* navigation dots — click to jump (redirect); soft hover reveals a label */
+.rail-dot {
+  position: absolute; left: -3px; width: 8px; height: 8px; margin-top: -4px;
+  border-radius: 50%; background: var(--bg); border: 1.5px solid var(--gold-soft);
+  pointer-events: auto; cursor: pointer;
+  transition: transform .35s ease, background .35s ease, border-color .35s ease;
+}
+.rail-dot::after {
+  content: attr(data-label);
+  position: absolute; right: 20px; top: 50%; transform: translateY(-50%) translateX(6px);
+  font-family: var(--alt); font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--muted); white-space: nowrap; opacity: 0; pointer-events: none;
+  transition: opacity .35s ease, transform .35s ease, color .35s ease;
+}
+.rail-dot:hover { transform: scale(1.45); background: var(--gold); border-color: var(--gold); }
+.rail-dot:hover::after { opacity: 1; transform: translateY(-50%) translateX(0); color: var(--ink); }
 body.low-fx .scroll-rail__fill { box-shadow: none; }
-@media (max-width: 560px) { .scroll-rail { right: 9px; height: 34vh; } }
+@media (max-width: 560px) { .scroll-rail { right: 11px; height: 46vh; } .rail-dot::after { display: none; } }
 
 /* ===== Phone ===== */
 @media (max-width: 560px) {
