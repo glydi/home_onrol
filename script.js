@@ -41,7 +41,7 @@ if (typeof window.__useHall === 'undefined') {
 
   // depth sparkle field — tiny glints at varied depths; they rotate with the
   // ring, so scrolling sweeps them past (parallax depth) + they twinkle
-  const SP = window.__lowFx ? 36 : 120;   // fewer depth glints on low-end
+  const SP = window.__lowFx ? 24 : 70;   // depth glints — fewer = lighter on every device
   for (let i = 0; i < SP; i++) {
     const s = document.createElement('div');
     s.className = 'spark';
@@ -275,45 +275,32 @@ if (typeof window.__useHall === 'undefined') {
   frame();
 })();
 
-/* ===== Cursor-interactive 3D objects + slide parallax ===== */
+/* ===== Static bloom + cheap cursor parallax =====
+   The orange bloom is blurred in CSS. We keep it STATIC on every device so the
+   full-screen blur layer rasterizes ONCE and just composites — moving a blurred
+   glow re-blurs the whole screen every frame, which was the jank. The only
+   per-frame work left is a light GPU transform on the facing slide, and that
+   runs on mouse devices only. */
 (function () {
-  const objs = Array.prototype.slice.call(document.querySelectorAll('.obj__inner'));
   const root = document.documentElement;
-  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const lowFx = window.__lowFx;
+  root.style.setProperty('--gx', '0%');
+  root.style.setProperty('--gy', '0%');
 
-  let tx = 0, ty = 0, cx = 0, cy = 0, spin = 0;
-  let fcnt = 0, twx = 0, twy = 0, wx = 0, wy = 0;   // evolving (wandering) glow target
+  if (!window.matchMedia || !window.matchMedia('(pointer: fine)').matches) return;
+  let tx = 0, ty = 0, cx = 0, cy = 0, raf = 0;
   window.addEventListener('mousemove', (e) => {
     tx = (e.clientX / window.innerWidth - 0.5) * 2;
     ty = (e.clientY / window.innerHeight - 0.5) * 2;
+    if (!raf) raf = requestAnimationFrame(loop);   // only animate while the mouse moves
   });
   window.addEventListener('mouseleave', () => { tx = 0; ty = 0; });
-
-  // low-end: keep the blurred glow static so the heavy blur layer rasterizes
-  // once (a moving glow would force the GPU to re-blur every frame)
-  if (lowFx) {
-    root.style.setProperty('--gx', '0%');
-    root.style.setProperty('--gy', '0%');
-  } else {
-    (function loop() {
-      cx += (tx - cx) * 0.06;
-      cy += (ty - cy) * 0.06;
-      if (!reduce) spin += 0.35;
-      root.style.setProperty('--px', cx.toFixed(3));
-      root.style.setProperty('--py', cy.toFixed(3));
-
-      // glow evolves to new random positions, and the cursor pushes it around
-      if (!reduce && (++fcnt % 200 === 0)) { twx = Math.random() * 2 - 1; twy = Math.random() * 2 - 1; }
-      wx += (twx - wx) * 0.012;
-      wy += (twy - wy) * 0.012;
-      root.style.setProperty('--gx', (wx * 24 + cx * 13).toFixed(2) + '%');
-      root.style.setProperty('--gy', (wy * 17 + cy * 9).toFixed(2) + '%');
-
-      const tf = 'rotateX(' + (12 - cy * 20).toFixed(2) + 'deg) rotateY(' + (spin + cx * 30).toFixed(2) + 'deg)';
-      for (let i = 0; i < objs.length; i++) objs[i].style.transform = tf;
-      requestAnimationFrame(loop);
-    })();
+  function loop() {
+    cx += (tx - cx) * 0.06;
+    cy += (ty - cy) * 0.06;
+    root.style.setProperty('--px', cx.toFixed(3));
+    root.style.setProperty('--py', cy.toFixed(3));
+    if (Math.abs(tx - cx) > 0.001 || Math.abs(ty - cy) > 0.001) raf = requestAnimationFrame(loop);
+    else raf = 0;
   }
 })();
 
