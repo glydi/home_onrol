@@ -499,6 +499,9 @@ body.light {
   --ink: #20140a;
   --muted: rgba(40,26,12,.6);
   --line: rgba(255,106,31,.32);
+  /* deeper, saturated warm tones so the peach/gold accents show on the cream bg */
+  --peach: #e0662e;
+  --amber: #c4801a;
 }
 body.light .hall {
   background:
@@ -507,7 +510,7 @@ body.light .hall {
 }
 /* light theme: multiply so the orange glow tints the cream bg instead of
    washing out (a normal-blended low-alpha orange is invisible on light) */
-body.light .hall::before { mix-blend-mode: multiply; opacity: var(--glow-o, .85); }
+body.light .hall::before { mix-blend-mode: multiply; opacity: var(--glow-o, 1); }
 body.light .hall::after { mix-blend-mode: multiply; opacity: .05; }
 body.light .vignette {
   background: radial-gradient(76% 72% at 50% 46%,
