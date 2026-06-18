@@ -69,12 +69,18 @@ em { font-style: normal; color: var(--gold); }
 .hall::before {
   content: ""; position: absolute; inset: -12%; z-index: 0; pointer-events: none;
   background:
-    radial-gradient(72% 66% at calc(50% + var(--gx,0%)) calc(42% + var(--gy,0%)),
-      rgba(255,142,62,.16) 0%, rgba(255,128,48,.09) 34%, rgba(255,116,38,.035) 60%, transparent 82%),
-    radial-gradient(95% 85% at calc(50% - var(--gx,0%)) 124%,
-      rgba(255,112,32,.14) 0%, rgba(255,110,31,.05) 46%, transparent 78%),
-    radial-gradient(120% 110% at 50% 42%, #1a0c04 0%, #160b05 38%, #110905 64%, var(--bg) 92%);
-  filter: blur(36px) saturate(1.08);
+    /* hot core — small + bright, clean falloff so it reads as a light source */
+    radial-gradient(40% 44% at calc(50% + var(--gx,0%)) calc(40% + var(--gy,0%)),
+      rgba(255,184,120,.34) 0%, rgba(255,146,72,.13) 44%, transparent 70%),
+    /* broad ambient halo around it */
+    radial-gradient(92% 82% at 50% 44%,
+      rgba(255,120,48,.10) 0%, rgba(255,110,40,.028) 52%, transparent 80%),
+    /* warm floor uplight */
+    radial-gradient(78% 58% at calc(50% - var(--gx,0%)) 122%,
+      rgba(255,118,40,.13) 0%, transparent 68%),
+    /* deep base + vignette so the centre pops instead of fogging the frame */
+    radial-gradient(135% 120% at 50% 42%, #1d0d05 0%, #150a04 46%, #0d0603 78%, var(--bg) 100%);
+  filter: blur(30px) saturate(1.16);
 }
 /* faint grain dither to remove gradient banding (the "rings/breaks" in the glow) */
 .hall::after {
