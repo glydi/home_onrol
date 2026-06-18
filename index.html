@@ -22,6 +22,25 @@
 </head>
 <body>
 
+  <!-- Device-capability tiers — run before paint to avoid a flash of the heavy hall -->
+  <script>
+    (function () {
+      var mq = function (q) { return !!(window.matchMedia && window.matchMedia(q).matches); };
+      var reduce = mq('(prefers-reduced-motion: reduce)');
+      var touch = mq('(pointer: coarse)');
+      var narrow = mq('(max-width: 1024px)');
+      var mem = navigator.deviceMemory || 8;
+      var cores = navigator.hardwareConcurrency || 8;
+      var lowEnd = reduce || mem <= 4 || cores <= 4;
+      var useHall = !touch && !narrow && !lowEnd;
+      var c = document.body.classList;
+      if (!useHall) c.add('no-hall');
+      if (lowEnd || touch) c.add('low-fx');
+      window.__useHall = useHall;
+      window.__lowFx = lowEnd || touch;
+    })();
+  </script>
+
   <!-- ===== Intro ===== -->
   <div class="intro" id="intro">
     <span class="intro__name">ONROL</span>

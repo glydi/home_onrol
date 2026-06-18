@@ -1,3 +1,14 @@
+/* Device-capability tiers are set by an inline script at the top of <body>
+   (so the class is applied before paint). Fall back here just in case. */
+if (typeof window.__useHall === 'undefined') {
+  const mq = (q) => !!(window.matchMedia && window.matchMedia(q).matches);
+  const lowEnd = mq('(prefers-reduced-motion: reduce)') || (navigator.deviceMemory || 8) <= 4 || (navigator.hardwareConcurrency || 8) <= 4;
+  window.__useHall = !mq('(pointer: coarse)') && !mq('(max-width: 1024px)') && !lowEnd;
+  window.__lowFx = lowEnd || mq('(pointer: coarse)');
+  if (!window.__useHall) document.body.classList.add('no-hall');
+  if (window.__lowFx) document.body.classList.add('low-fx');
+}
+
 /* =========================================================
    ONROL — 3D circular hall (inside view). Scroll turns you
    RIGHT through the walls (with an empty gap between each),
@@ -9,8 +20,8 @@
   const hall = document.getElementById('hall');
   const ring = document.getElementById('ring');
   if (!pin || !hall || !ring) return;
-  // phones use the vertical fallback — skip the heavy 3D hall
-  if (window.matchMedia && window.matchMedia('(max-width: 760px)').matches) return;
+  // tablets / touch / low-end use the vertical fallback — skip the heavy 3D hall
+  if (!window.__useHall) return;
 
   const walls = Array.prototype.slice.call(ring.querySelectorAll('.wall'));
   const C = walls.length;          // content walls
@@ -31,7 +42,7 @@
 
   // depth sparkle field — tiny glints at varied depths; they rotate with the
   // ring, so scrolling sweeps them past (parallax depth) + they twinkle
-  const SP = 120;
+  const SP = window.__lowFx ? 36 : 120;   // fewer depth glints on low-end
   for (let i = 0; i < SP; i++) {
     const s = document.createElement('div');
     s.className = 'spark';

@@ -379,12 +379,27 @@ body.orange-cursor, body.orange-cursor * { cursor: none !important; }
 
 @media (prefers-reduced-motion: reduce) { .orb { animation: none; } .intro__line { animation: none; width: 220px; } }
 
-/* phones: drop the heavy 3D hall, show clean vertical slides */
+/* phones (no-JS fallback): drop the heavy 3D hall, show clean vertical slides */
 @media (max-width: 760px) {
   .pin-wrap, .intro, .coords, .cur-dot { display: none !important; }
   .m-slides { display: block; }
   .hdr { position: sticky; background: rgba(12,10,9,.9); backdrop-filter: blur(10px); }
 }
+
+/* tablets / touch / low-end (set by JS): same light vertical layout */
+body.no-hall .pin-wrap, body.no-hall .intro, body.no-hall .coords, body.no-hall .cur-dot { display: none !important; }
+body.no-hall .m-slides { display: block; }
+body.no-hall .hdr { position: sticky; background: rgba(12,10,9,.9); backdrop-filter: blur(10px); }
+body.no-hall.light .hdr { background: rgba(255,247,238,.85); }
+
+/* low-end: strip the expensive effects (blur, grain, glows, idle animations) */
+body.low-fx .hdr { backdrop-filter: none; }
+body.low-fx .hall { animation: none; }
+body.low-fx .hall::after { display: none; }                       /* noise-grain layer */
+body.low-fx .spark { animation: none; opacity: .55; box-shadow: none; }
+body.low-fx .wall::before { animation: none; }
+body.low-fx .scroll-cue span { animation: none; }
+body.low-fx .bot__bubble, body.low-fx .bot__face { box-shadow: none; }
 
 /* ===== Build-with-AI demo ===== */
 .demo { max-width: 760px; margin: 0 auto; padding: 110px 32px; border-top: 1px solid var(--line); }
@@ -475,7 +490,9 @@ body.orange-cursor, body.orange-cursor * { cursor: none !important; }
   border: 2px solid var(--bg); cursor: pointer;
 }
 .sens__ends { display: flex; justify-content: space-between; font-size: 10px; opacity: .55; }
+/* scroll-speed only matters when the 3D hall runs */
 @media (max-width: 760px) { .settings__row--desktop { display: none; } }
+body.no-hall .settings__row--desktop { display: none; }
 
 /* ===== Light theme ===== */
 body.light {
@@ -504,6 +521,12 @@ body.light .hdr { background: transparent; }
 /* keep Vector's bubble/input readable (its panel stays dark) */
 body.light .bot__bubble, body.light .bot__input { color: #fff3ea; }
 
+@media (max-width: 1024px) {
+  .hdr { padding: 22px 28px; }
+  .collection { padding: 90px 28px 70px; }
+  .stats-band { gap: 40px 48px; padding: 60px 28px; }
+}
+
 @media (max-width: 820px) {
   .hdr__nav { display: none; }
   .wall { width: 86vw; }
@@ -512,4 +535,25 @@ body.light .bot__bubble, body.light .bot__input { color: #fff3ea; }
   .grid { grid-template-columns: repeat(2, 1fr); }
   .collection, .savoir { padding-left: 22px; padding-right: 22px; }
   .foot { flex-direction: column; align-items: flex-start; }
+}
+
+/* ===== Phone ===== */
+@media (max-width: 560px) {
+  .hdr { padding: 16px 18px; }
+  .wordmark { font-size: 17px; letter-spacing: 4px; }
+  .grid { grid-template-columns: 1fr; gap: 18px; }
+  .stats-band { gap: 26px 36px; padding: 48px 20px; }
+  .collection { padding: 66px 20px 52px; }
+  .demo, .personas-pick, .apply { padding-left: 20px; padding-right: 20px; }
+  .savoir { padding: 76px 20px; }
+  .savoir__copy { font-size: 16px; }
+  .demo__form, .apply__form { flex-direction: column; align-items: stretch; }
+  .demo__form input, .apply__form input { min-width: 0; width: 100%; }
+  .demo__form .btn, .apply__form .btn { width: 100%; }
+  .foot { padding: 44px 20px; }
+  .foot__links { flex-wrap: wrap; gap: 14px 18px; }
+  .bot { right: 14px; bottom: 14px; gap: 8px; }
+  .bot__bubble { max-width: 168px; font-size: 8px; }
+  .m-card { padding: 54px 20px; }
+  .settings__pop { width: min(224px, calc(100vw - 28px)); }
 }
