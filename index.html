@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+  ============================================================
+  ONROL — India's AI Execution School.
+  3D circular hall (scroll turns right through the walls, then
+  the page scrolls down into the detail sections). Content from
+  onrol.in. Orbs are CSS placeholders; swap for real media.
+  ============================================================
+-->
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ONROL — India's AI Execution School</title>
+  <meta name="description" content="ONROL turns AI curiosity into shipped work — useful automations, deployable web apps, AI agents, and a portfolio that proves execution." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist:wght@400;500;600&family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ===== Intro ===== -->
+  <div class="intro" id="intro">
+    <span class="intro__name">ONROL</span>
+    <span class="intro__line"></span>
+  </div>
+
+  <!-- ===== Header ===== -->
+  <header class="hdr" id="top">
+    <a href="#top" class="wordmark">ONROL</a>
+    <nav class="hdr__nav">
+      <a class="hdr__link" data-wall="0">Home</a>
+      <a class="hdr__link" data-wall="1">Automations</a>
+      <a class="hdr__link" data-wall="2">Agents</a>
+      <a class="hdr__link" data-wall="3">Websites</a>
+      <a class="hdr__link" data-wall="4">Personas</a>
+    </nav>
+  </header>
+
+  <!-- ===== 3D circular hall (scroll-driven, pinned) ===== -->
+  <div class="pin-wrap" id="pinWrap">
+  <div class="hall" id="hall">
+    <div class="floor" id="floor"></div>
+    <div class="ceiling" id="ceiling"></div>
+    <div class="ring" id="ring">
+
+      <section class="wall">
+        <div class="wall__in wall--center">
+          <p class="eyebrow">India's AI Execution School</p>
+          <h1 class="display display--xl">Turn AI curiosity<br />into <em>shipped work</em></h1>
+          <p class="sub">Useful automations, deployable web apps, AI agents, and a portfolio that proves execution.</p>
+        </div>
+      </section>
+
+      <section class="wall">
+        <div class="wall__in wall--center">
+          <div class="obj" aria-hidden="true"><div class="obj__inner gyro">
+            <span class="ring"></span><span class="ring r2"></span><span class="ring r3"></span><span class="core"></span>
+          </div></div>
+          <p class="eyebrow">What you'll build</p>
+          <h2 class="display">AI Automations</h2>
+          <p class="desc">Automate workflows, lead routing, research, follow-ups, and daily operations.</p>
+          <a href="#tracks" class="link">Explore →</a>
+        </div>
+      </section>
+
+      <section class="wall">
+        <div class="wall__in wall--center">
+          <div class="obj" aria-hidden="true"><div class="obj__inner cube">
+            <span class="face f-front"></span><span class="face f-back"></span><span class="face f-right"></span><span class="face f-left"></span><span class="face f-top"></span><span class="face f-bottom"></span>
+          </div></div>
+          <p class="eyebrow">What you'll build</p>
+          <h2 class="display">AI Agents</h2>
+          <p class="desc">Build tool-using agents that reason, call APIs, and complete multi-step tasks.</p>
+          <a href="#tracks" class="link">Explore →</a>
+        </div>
+      </section>
+
+      <section class="wall">
+        <div class="wall__in wall--center">
+          <div class="obj" aria-hidden="true"><div class="obj__inner cube cube--wire">
+            <span class="face f-front"></span><span class="face f-back"></span><span class="face f-right"></span><span class="face f-left"></span><span class="face f-top"></span><span class="face f-bottom"></span>
+          </div></div>
+          <p class="eyebrow">What you'll build</p>
+          <h2 class="display">Vibe-Coded Websites</h2>
+          <p class="desc">Ship polished pages and apps with AI-assisted coding, deployment, and iteration.</p>
+          <a href="#tracks" class="link">Explore →</a>
+        </div>
+      </section>
+
+      <section class="wall">
+        <div class="wall__in wall--center">
+          <p class="eyebrow">AI for every aspirant</p>
+          <h2 class="display">Built for<br /><em>12 personas</em></h2>
+          <p class="sub">Engineers · Students · Founders · Freelancers · Creators · SMB owners — and more.</p>
+        </div>
+      </section>
+
+      <section class="wall">
+        <div class="wall__in wall--center">
+          <p class="eyebrow">Rolling admissions</p>
+          <h2 class="display">Join the<br /><em>next cohort</em></h2>
+          <p class="sub">30 days · Live · online · No coding needed. Continue below to apply.</p>
+        </div>
+      </section>
+    </div>
+
+    <div class="vignette" aria-hidden="true"></div>
+
+    <button class="nav-arrow nav-arrow--prev" id="prev" aria-label="Turn left">‹</button>
+    <button class="nav-arrow nav-arrow--next" id="next" aria-label="Turn right">›</button>
+    <div class="dots" id="dots"></div>
+    <a href="#tracks" class="scroll-cue">scroll to turn — then down <span>↓</span></a>
+  </div>
+  </div><!-- /.pin-wrap -->
+
+  <!-- ===== Detail sections (scroll down) ===== -->
+  <main class="after">
+
+    <section class="collection" id="tracks">
+      <div class="sec-head reveal">
+        <p class="eyebrow">What you'll build</p>
+        <h2 class="display sec-title">Three tracks, real output</h2>
+      </div>
+      <div class="grid">
+        <article class="ware reveal"><div class="ware__img w-1"></div><h3>AI Automations</h3><span>workflows &amp; ops</span></article>
+        <article class="ware reveal"><div class="ware__img w-2"></div><h3>AI Agents</h3><span>tool-using agents</span></article>
+        <article class="ware reveal"><div class="ware__img w-3"></div><h3>Vibe-Coded Sites</h3><span>apps &amp; pages</span></article>
+        <article class="ware reveal"><div class="ware__img w-4"></div><h3>Portfolio</h3><span>proof of execution</span></article>
+      </div>
+    </section>
+
+    <section class="stats-band">
+      <div class="stat reveal"><span class="stat__num">4.95/5</span><span class="stat__label">rating</span></div>
+      <div class="stat reveal"><span class="stat__num">2,400+</span><span class="stat__label">alumni</span></div>
+      <div class="stat reveal"><span class="stat__num">10,000+</span><span class="stat__label">builders</span></div>
+      <div class="stat reveal"><span class="stat__num">30 days</span><span class="stat__label">live · online</span></div>
+    </section>
+
+    <section class="savoir">
+      <p class="eyebrow reveal">The ONROL way</p>
+      <h2 class="display savoir__line reveal">We don't just teach AI.<br />We help you <em>ship it</em>.</h2>
+      <p class="savoir__copy reveal">Customized 30-day tracks for 12 personas — Engineers, Students, Teachers, Sales &amp; Marketing pros, Real-estate agents, Founders, Working professionals, Job-seekers, Freelancers, Content creators, SMB owners, and Women returning to work. Live, online, no coding needed.</p>
+      <a href="mailto:info@onrol.in" class="btn reveal">Apply now</a>
+    </section>
+
+    <footer class="foot">
+      <a href="#top" class="wordmark">ONROL</a>
+      <div class="foot__links">
+        <a href="tel:9609312345">96093 12345</a>
+        <a href="mailto:info@onrol.in">info@onrol.in</a>
+        <a href="#">LinkedIn</a><a href="#">Instagram</a><a href="#">YouTube</a><a href="#">WhatsApp</a>
+      </div>
+      <span class="foot__copy">© 2025 ONROL — India's AI Execution School</span>
+    </footer>
+
+  </main>
+
+  <!-- ===== Pixel bot (waits — click to ask) ===== -->
+  <div class="bot" id="bot">
+    <div class="bot__bubble" id="botBubble">hi, i'm vector ✦</div>
+    <span class="bot__name">Vector</span>
+    <button class="bot__face" id="botFace" aria-label="Ask Vector">
+      <div class="matrix" id="matrix"></div>
+    </button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
