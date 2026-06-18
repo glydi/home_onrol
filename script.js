@@ -457,13 +457,23 @@ if (typeof window.__useHall === 'undefined') {
   draw();
 })();
 
-/* ===== Intro fade ===== */
+/* ===== Intro fade — short, and dismissible by any interaction (low patience) ===== */
 (function () {
   const intro = document.getElementById('intro');
   if (!intro) return;
-  const hide = () => intro.classList.add('is-gone');
-  setTimeout(hide, 2400);
+  let gone = false;
+  const hide = () => {
+    if (gone) return; gone = true;
+    intro.classList.add('is-gone');
+    window.removeEventListener('wheel', hide);
+    window.removeEventListener('touchstart', hide);
+    window.removeEventListener('keydown', hide);
+  };
+  setTimeout(hide, 1300);                              // was 2400 — quicker
   intro.addEventListener('click', hide);
+  window.addEventListener('wheel', hide, { passive: true });
+  window.addEventListener('touchstart', hide, { passive: true });
+  window.addEventListener('keydown', hide);
 })();
 
 /* ===== Scroll-reveal for the lower sections ===== */
