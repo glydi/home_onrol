@@ -226,19 +226,22 @@
   // ----- user scroll sensitivity (taller pin = finer/slower turns) -----
   // base height comes from CSS (.pin-wrap height); higher mult = shorter pin = faster turns
   const BASE_VH = 1180;
+  const SENS_MIN = 0.5, SENS_MAX = 2;
   const sensRange = document.getElementById('sensRange');
   const sensVal = document.getElementById('sensVal');
-  const sensBtn = document.getElementById('sensBtn');
-  const sensPop = document.getElementById('sensPop');
   function applySens(mult, keepPos) {
-    mult = Math.max(0.5, Math.min(2, mult));
+    mult = Math.max(SENS_MIN, Math.min(SENS_MAX, mult));
     const m0 = keepPos ? metrics() : null;                 // preserve position within the hall
     const p = m0 ? (window.scrollY - m0.top) / m0.range : 0;
     pin.style.height = Math.round(BASE_VH / mult) + 'vh';
     geometry();
     if (m0) { const m = metrics(); window.scrollTo(0, m.top + Math.max(0, Math.min(1, p)) * m.range); }
     if (sensVal) sensVal.textContent = mult.toFixed(1) + '×';
-    if (sensRange) sensRange.value = String(mult);
+    if (sensRange) {
+      sensRange.value = String(mult);
+      const pct = ((mult - SENS_MIN) / (SENS_MAX - SENS_MIN)) * 100;   // fill the bar
+      sensRange.style.setProperty('--sens-fill', pct.toFixed(1) + '%');
+    }
   }
   let savedSens = 1;
   try { savedSens = parseFloat(localStorage.getItem('onrol-sens')) || 1; } catch (e) {}
@@ -247,20 +250,6 @@
       const v = parseFloat(sensRange.value);
       applySens(v, true);
       try { localStorage.setItem('onrol-sens', String(v)); } catch (e) {}
-    });
-  }
-  if (sensBtn && sensPop) {
-    sensBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const willOpen = sensPop.hasAttribute('hidden');
-      sensPop.toggleAttribute('hidden', !willOpen);
-      sensBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
-    });
-    document.addEventListener('click', (e) => {
-      if (!sensPop.contains(e.target) && e.target !== sensBtn) {
-        sensPop.setAttribute('hidden', '');
-        sensBtn.setAttribute('aria-expanded', 'false');
-      }
     });
   }
   applySens(savedSens, false);
@@ -529,6 +518,22 @@
 
   document.getElementById('detailClose').addEventListener('click', close);
   detail.addEventListener('click', (e) => { if (e.target === detail) close(); });
+  window.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+})();
+
+/* ===== Settings dropdown (theme · sound · scroll speed) ===== */
+(function () {
+  const btn = document.getElementById('settingsBtn');
+  const pop = document.getElementById('settingsPop');
+  if (!btn || !pop) return;
+  function close() { pop.setAttribute('hidden', ''); btn.setAttribute('aria-expanded', 'false'); btn.classList.remove('is-on'); }
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const willOpen = pop.hasAttribute('hidden');
+    if (willOpen) { pop.removeAttribute('hidden'); btn.setAttribute('aria-expanded', 'true'); btn.classList.add('is-on'); }
+    else close();
+  });
+  document.addEventListener('click', (e) => { if (!pop.contains(e.target) && e.target !== btn) close(); });
   window.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
 })();
 
