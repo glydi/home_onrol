@@ -526,6 +526,21 @@ body.light .bot__bubble, body.light .bot__input { color: #fff3ea; }
   .foot { flex-direction: column; align-items: flex-start; }
 }
 
+/* ===== Scroll-progress rail (right edge) ===== */
+.scroll-rail {
+  position: fixed; right: 16px; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 40vh; max-height: 360px; border-radius: 3px;
+  background: var(--line); overflow: hidden; z-index: 80; pointer-events: none;
+}
+.scroll-rail__fill {
+  display: block; width: 100%; height: 0;
+  background: linear-gradient(var(--gold), #ffb15a);
+  box-shadow: 0 0 8px rgba(255,106,31,.55);
+  transition: height .12s linear;
+}
+body.low-fx .scroll-rail__fill { box-shadow: none; }
+@media (max-width: 560px) { .scroll-rail { right: 10px; height: 32vh; width: 2px; } }
+
 /* ===== Phone ===== */
 @media (max-width: 560px) {
   .hdr { padding: 16px 18px; }

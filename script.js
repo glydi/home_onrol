@@ -633,6 +633,23 @@ if (typeof window.__useHall === 'undefined') {
   });
 })();
 
+/* ===== Scroll-progress rail — fills as you move through the whole page ===== */
+(function () {
+  const fill = document.getElementById('scrollRailFill');
+  if (!fill) return;
+  let ticking = false;
+  function update() {
+    ticking = false;
+    const h = document.documentElement.scrollHeight - window.innerHeight;
+    const p = h > 0 ? Math.max(0, Math.min(1, window.scrollY / h)) : 0;
+    fill.style.height = (p * 100).toFixed(2) + '%';
+  }
+  window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+  window.addEventListener('resize', update, { passive: true });
+  window.addEventListener('load', update);
+  update();
+})();
+
 /* ===== Build-with-AI demo (plan → act → done) ===== */
 (function () {
   const form = document.getElementById('demoForm');
