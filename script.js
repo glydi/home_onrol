@@ -616,6 +616,23 @@ if (typeof window.__useHall === 'undefined') {
   document.addEventListener('onrol:slide', () => { tone(NOTE, 0.6, 0.045); });
 })();
 
+/* ===== Glow interaction: brighten + swell briefly on each slide =====
+   Drives CSS vars only (--glow-o opacity, --glow-s scale) — the transition in
+   CSS eases them back, so it's pure compositing, works in both themes. */
+(function () {
+  const root = document.documentElement;
+  let t;
+  document.addEventListener('onrol:slide', () => {
+    root.style.setProperty('--glow-o', '1');
+    root.style.setProperty('--glow-s', '1.06');
+    clearTimeout(t);
+    t = setTimeout(() => {
+      root.style.setProperty('--glow-o', '');   // back to the CSS default (.9)
+      root.style.setProperty('--glow-s', '1');
+    }, 260);
+  });
+})();
+
 /* ===== Build-with-AI demo (plan → act → done) ===== */
 (function () {
   const form = document.getElementById('demoForm');

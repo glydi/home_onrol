@@ -64,11 +64,16 @@ em { font-style: normal; color: var(--gold); }
   z-index: 1;
 }
 .hall.grabbing { cursor: grabbing; }
-/* static orange bloom — a PRE-DITHERED PNG (noise baked in), so there is no
-   live gradient to band and no filter = most efficient, zero visible layers. */
+/* orange bloom — a PRE-DITHERED PNG (noise baked in): no gradient to band, no
+   filter. It's interactive via cheap composited transforms only:
+     --px/--py : drift toward the cursor   --glow-o : pulse on slide change */
 .hall::before {
   content: ""; position: absolute; inset: -15%; z-index: 0; pointer-events: none;
   background: url("glow.png") center / cover no-repeat;
+  opacity: var(--glow-o, .9);
+  transform: translate(calc(var(--px, 0) * 30px), calc(var(--py, 0) * 24px)) scale(var(--glow-s, 1));
+  transition: transform .5s ease-out, opacity .55s ease;
+  will-change: transform, opacity;
 }
 /* grain dither — breaks up any residual gradient banding so no rings/layers show */
 .hall::after {
@@ -490,7 +495,9 @@ body.light .hall {
     radial-gradient(120% 105% at 50% 46%, rgba(255,150,70,.10) 0%, transparent 70%),
     radial-gradient(140% 130% at 50% 44%, #fff6ec 0%, var(--bg) 80%);
 }
-/* light theme reuses the same baked PNG glow (no override needed) */
+/* light theme: multiply so the orange glow tints the cream bg instead of
+   washing out (a normal-blended low-alpha orange is invisible on light) */
+body.light .hall::before { mix-blend-mode: multiply; opacity: var(--glow-o, .85); }
 body.light .hall::after { mix-blend-mode: multiply; opacity: .05; }
 body.light .vignette {
   background: radial-gradient(76% 72% at 50% 46%,
