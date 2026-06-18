@@ -315,7 +315,9 @@ body.orange-cursor, body.orange-cursor * { cursor: none !important; }
   position: absolute; right: calc(100% + 14px); bottom: 6px;
   font-family: 'Press Start 2P', monospace; font-size: 9px; line-height: 1.7;
   color: var(--ink); background: rgba(20,12,6,.92);
-  border: 2px solid var(--gold); padding: 10px 12px; max-width: 220px;
+  border: 2px solid var(--gold); padding: 11px 13px;
+  width: 210px; min-height: 58px; box-sizing: border-box;   /* standard size for every message */
+  display: flex; align-items: center;
   box-shadow: 0 0 18px rgba(255,106,31,.4);
   transition: opacity .3s ease, transform .3s ease;
 }
