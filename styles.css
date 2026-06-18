@@ -376,6 +376,17 @@ body.orange-cursor, body.orange-cursor * { cursor: none !important; }
 @keyframes tapPulse { 0% { box-shadow: 0 0 0 0 rgba(255,106,31,.32); } 70% { box-shadow: 0 0 0 7px rgba(255,106,31,0); } 100% { box-shadow: 0 0 0 0 rgba(255,106,31,0); } }
 @keyframes tapBob { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-4px); } }
 body.light .tap-hint { background: rgba(255,247,238,.6); color: rgba(40,26,12,.7); }
+
+/* decode popup — "scroll to explore" scrambles in, holds, scrambles out */
+.scroll-pop {
+  position: fixed; left: 50%; bottom: 22%; transform: translateX(-50%);
+  z-index: 96; pointer-events: none; white-space: nowrap;
+  font-family: 'Press Start 2P', monospace; font-size: 10px; letter-spacing: 1px;
+  color: var(--gold); text-shadow: 0 0 12px rgba(255,106,31,.5);
+  opacity: 0; transition: opacity .5s ease;
+}
+.scroll-pop.show { opacity: 1; }
+.scroll-pop .dim { color: var(--peach); opacity: .55; }
 body.low-fx .tap-hint { animation: tapIn .6s ease both; }
 body.low-fx .tap-hint::before, body.low-fx .tap-hint__ring { animation: none; }
 

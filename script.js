@@ -768,3 +768,52 @@ if (typeof window.__useHall === 'undefined') {
   });
 })();
 
+
+/* ===== Decode popup — random letters resolve into "scroll to explore",
+   hold, then scramble into random letters and vanish ===== */
+(function () {
+  const el = document.getElementById('scrollPop');
+  if (!el) return;
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const TEXT = 'scroll to explore';
+  const CHARS = '!<>-_\\/[]{}=+*^?#$%&▢◇△○✦';
+  const rand = () => CHARS[Math.floor(Math.random() * CHARS.length)];
+
+  function scramble(target, done) {
+    const q = [];
+    for (let i = 0; i < target.length; i++) {
+      const start = Math.floor(Math.random() * 16);
+      const end = start + 8 + Math.floor(Math.random() * 18);
+      q.push({ to: target[i], start: start, end: end, c: '' });
+    }
+    let frame = 0;
+    (function up() {
+      let out = '', done2 = 0;
+      for (let i = 0; i < q.length; i++) {
+        const it = q[i];
+        if (it.to === ' ') { out += ' '; done2++; continue; }
+        if (frame >= it.end) { out += it.to; done2++; }
+        else if (frame >= it.start) { if (!it.c || Math.random() < 0.3) it.c = rand(); out += '<span class="dim">' + it.c + '</span>'; }
+        else out += '<span class="dim">' + (it.c || rand()) + '</span>';
+      }
+      el.innerHTML = out;
+      if (done2 === q.length) { if (done) done(); }
+      else { frame++; requestAnimationFrame(up); }
+    })();
+  }
+  function gibberish(n) { let s = ''; for (let i = 0; i < n; i++) s += (TEXT[i] === ' ' ? ' ' : rand()); return s; }
+
+  function run() {
+    el.classList.add('show');
+    if (reduce) { el.textContent = TEXT; setTimeout(() => el.classList.remove('show'), 2200); return; }
+    scramble(TEXT, () => {
+      setTimeout(() => {
+        scramble(gibberish(TEXT.length), () => {     // random vanish
+          el.classList.remove('show');
+          setTimeout(() => { el.innerHTML = ''; }, 600);
+        });
+      }, 1700);
+    });
+  }
+  setTimeout(run, 2300);   // after the intro clears
+})();
