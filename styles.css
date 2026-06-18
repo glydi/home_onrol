@@ -64,12 +64,12 @@ em { font-style: normal; color: var(--gold); }
   z-index: 1;
 }
 .hall.grabbing { cursor: grabbing; }
-/* revolving orange bloom — ONE soft off-centre lobe orbiting via transform (pure
-   GPU compositing, no blur = most efficient). A single low-alpha ramp + the grain
-   dither below = a seamless sweep with no visible bands or layers. */
+/* revolving orange bloom — a PRE-DITHERED PNG (noise baked in), so there is no
+   live gradient to band. It orbits the centre via a transform: pure GPU
+   compositing, no filter = most efficient, and zero visible layers/rings. */
 .hall::before {
   content: ""; position: absolute; inset: -15%; z-index: 0; pointer-events: none;
-  background: radial-gradient(60% 60% at 50% 30%, rgba(255,146,78,.13) 0%, transparent 78%);
+  background: url("glow.png") center / cover no-repeat;
   transform-origin: 50% 50%;
   animation: glowOrbit 32s linear infinite;
   will-change: transform;
@@ -495,11 +495,7 @@ body.light .hall {
     radial-gradient(120% 105% at 50% 46%, rgba(255,150,70,.10) 0%, transparent 70%),
     radial-gradient(140% 130% at 50% 44%, #fff6ec 0%, var(--bg) 80%);
 }
-body.light .hall::before {
-  background:
-    radial-gradient(56% 56% at 50% 28%,
-      rgba(255,150,70,.20) 0%, rgba(255,170,95,.085) 50%, transparent 86%);
-}
+/* light theme reuses the same baked PNG glow (no override needed) */
 body.light .hall::after { mix-blend-mode: multiply; opacity: .05; }
 body.light .vignette {
   background: radial-gradient(76% 72% at 50% 46%,
