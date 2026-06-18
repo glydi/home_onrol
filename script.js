@@ -47,18 +47,11 @@
     ring.appendChild(s);
   }
 
-  // dot navigation (one per content wall)
-  const dotsWrap = document.getElementById('dots');
-  const dots = [];
-  for (let i = 0; i < C; i++) {
-    const d = document.createElement('span');
-    d.addEventListener('click', () => {
-      const m = metrics();
-      window.scrollTo({ top: m.top + (i / C) * m.range, behavior: 'smooth' });
-    });
-    dotsWrap.appendChild(d);
-    dots.push(d);
-  }
+  // progress arc
+  const arcFill = document.getElementById('progressFill');
+  const arcNum = document.getElementById('progressNum');
+  const CIRC = 2 * Math.PI * 46;
+  if (arcFill) { arcFill.style.strokeDasharray = CIRC; arcFill.style.strokeDashoffset = CIRC; }
 
   let Rc = 360, Rseg = 400, wallH = 600, ringZ = 0;
   function geometry() {
@@ -140,7 +133,11 @@
       const f = shadeWall(walls[k], shortest(angle - k * SEG));
       walls[k].style.pointerEvents = f > 0.9 ? 'auto' : 'none';
     }
-    for (let i = 0; i < C; i++) dots[i].classList.toggle('is-active', i === facing);
+    if (arcFill) {
+      const prog = Math.max(0, Math.min(1, (angle / SEG) / (C - 1)));
+      arcFill.style.strokeDashoffset = CIRC * (1 - prog);
+    }
+    if (arcNum) arcNum.textContent = String(facing + 1);
     navLinks.forEach((l) => l.classList.toggle('is-active', +l.dataset.wall === facing));
 
     // tell the bot which slide we're on (it reacts when you scroll to a new one)
@@ -163,11 +160,50 @@
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') stepBy(1);
     else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') stepBy(-1);
   });
-  navLinks.forEach((l) => l.addEventListener('click', (e) => {
-    e.preventDefault();
+  function goSlide(i) {
     const m = metrics();
-    window.scrollTo({ top: m.top + (+l.dataset.wall / C) * m.range, behavior: 'smooth' });
-  }));
+    window.scrollTo({ top: m.top + (Math.max(0, Math.min(C - 1, i)) / C) * m.range, behavior: 'smooth' });
+  }
+  navLinks.forEach((l) => l.addEventListener('click', (e) => { e.preventDefault(); goSlide(+l.dataset.wall); }));
+
+  // ----- drag-to-spin with inertia (maps horizontal drag to the scroll-turn) -----
+  let dn = false, lx = 0, sx = 0, dv = 0, inertia = 0;
+  const dragK = () => (metrics().range / C) / 320;       // px dragged -> scroll
+  hall.addEventListener('pointerdown', (e) => { dn = true; lx = sx = e.clientX; dv = 0; window.__hallDragged = false; cancelAnimationFrame(inertia); });
+  hall.addEventListener('pointermove', (e) => {
+    if (!dn) return;
+    const dx = e.clientX - lx; lx = e.clientX; dv = dx;
+    if (Math.abs(e.clientX - sx) > 6) window.__hallDragged = true;
+    window.scrollBy(0, -dx * dragK());
+  });
+  function release() {
+    if (!dn) return; dn = false;
+    let v = dv;
+    (function glide() {
+      if (Math.abs(v) < 0.4) return;
+      window.scrollBy(0, -v * dragK());
+      v *= 0.92;
+      inertia = requestAnimationFrame(glide);
+    })();
+  }
+  hall.addEventListener('pointerup', release);
+  hall.addEventListener('pointercancel', release);
+
+  // ----- keyboard: 1–6 jump · Enter opens detail · / focuses Vector -----
+  window.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key >= '1' && e.key <= '6') goSlide(+e.key - 1);
+    else if (e.key === 'Enter') document.dispatchEvent(new CustomEvent('onrol:open', { detail: lastFacing }));
+    else if (e.key === '/') { e.preventDefault(); document.dispatchEvent(new CustomEvent('onrol:askvector')); }
+  });
+
+  // ----- deep-link (#agents etc.) opens that slide -----
+  function fromHash() {
+    const map = { home: 0, automations: 1, agents: 2, websites: 3, personas: 4, join: 5 };
+    const h = (location.hash || '').replace('#', '').toLowerCase();
+    if (h in map) setTimeout(() => goSlide(map[h]), 60);
+  }
+  window.addEventListener('hashchange', fromHash);
 
   // snap to a slide (or out to the sections) when scrolling stops — never rest mid-turn
   const pts = [];
@@ -194,7 +230,7 @@
 
   geometry();
   window.addEventListener('resize', geometry);
-  window.addEventListener('load', () => { geometry(); window.scrollTo(0, 0); });
+  window.addEventListener('load', () => { geometry(); fromHash(); });
   frame();
 })();
 
@@ -336,9 +372,31 @@
     if (!q) return;
     let ans = 'Try: pricing, duration, agents, websites, or apply…';
     for (let i = 0; i < KB.length; i++) { if (KB[i][0].test(q)) { ans = KB[i][1]; break; } }
-    say(ans, 7000);
+    typeOut(ans);
     input.value = '';
   });
+
+  // open Vector via the "/" shortcut
+  document.addEventListener('onrol:askvector', () => {
+    if (!bot.classList.contains('asking')) { bot.classList.add('asking'); say('ask me anything ✦', 999999); }
+    if (input) input.focus();
+  });
+
+  // typing indicator + types the answer out
+  let typeT;
+  function typeOut(text) {
+    busy = true; mouth = 'smile'; blink = false; draw();
+    bubble.classList.remove('is-hidden');
+    bubble.textContent = '…';
+    clearTimeout(t); clearTimeout(typeT);
+    let i = 0;
+    setTimeout(function step() {
+      if (i === 0) bubble.textContent = '';
+      bubble.textContent = text.slice(0, ++i);
+      if (i < text.length) typeT = setTimeout(step, 22);
+      else t = setTimeout(() => { busy = false; draw(); if (!bot.classList.contains('asking')) bubble.classList.add('is-hidden'); }, 7000);
+    }, 420);   // brief "…" think time
+  }
 
   // respond when you scroll to a new slide
   const slideMsgs = [
@@ -419,8 +477,9 @@
 
   // desktop: click the centred slide (only the facing one is clickable)
   document.querySelectorAll('.wall').forEach((w, i) => {
-    w.addEventListener('click', (e) => { if (e.target.closest('a')) return; open(i); });
+    w.addEventListener('click', (e) => { if (e.target.closest('a') || window.__hallDragged) return; open(i); });
   });
+  document.addEventListener('onrol:open', (e) => open(e.detail));   // keyboard Enter
   // mobile cards
   document.querySelectorAll('.m-card[data-detail]').forEach((c) => {
     c.addEventListener('click', (e) => { if (e.target.closest('a')) return; open(+c.dataset.detail); });
@@ -448,4 +507,124 @@
     apply();
   });
   apply();
+})();
+
+/* ===== Count-up stats ===== */
+(function () {
+  const nums = document.querySelectorAll('.stat__num');
+  if (!nums.length || !('IntersectionObserver' in window)) return;
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      const el = e.target; io.unobserve(el);
+      const raw = el.textContent.trim();
+      const m = raw.match(/[\d.,]+/);
+      if (!m) return;
+      const target = parseFloat(m[0].replace(/,/g, ''));
+      const dec = (m[0].split('.')[1] || '').length;
+      const pre = raw.slice(0, m.index), suf = raw.slice(m.index + m[0].length);
+      const t0 = performance.now(), dur = 1200;
+      (function tick(now) {
+        const p = Math.min(1, (now - t0) / dur);
+        const e2 = 1 - Math.pow(1 - p, 3);
+        const v = target * e2;
+        const s = dec ? v.toFixed(dec) : Math.round(v).toLocaleString('en-US');
+        el.textContent = pre + s + suf;
+        if (p < 1) requestAnimationFrame(tick);
+      })(t0);
+    });
+  }, { threshold: 0.4 });
+  nums.forEach((n) => io.observe(n));
+})();
+
+/* ===== Sound: per-slide ambient tone + snap tick (mute toggle) ===== */
+(function () {
+  const btn = document.getElementById('soundBtn');
+  if (!btn) return;
+  let on = false, ctx = null;
+  const freqs = [196, 233, 261, 311, 349, 392];   // soft pentatonic per slide
+  function ensure() { if (!ctx) { try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} } }
+  function tone(f, dur, gain) {
+    if (!on || !ctx) return;
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = 'sine'; o.frequency.value = f;
+    o.connect(g); g.connect(ctx.destination);
+    const t = ctx.currentTime;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(gain || 0.05, t + 0.04);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + (dur || 0.6));
+    o.start(t); o.stop(t + (dur || 0.6) + 0.02);
+  }
+  btn.addEventListener('click', () => {
+    on = !on; ensure(); if (ctx && ctx.state === 'suspended') ctx.resume();
+    btn.style.color = on ? 'var(--bg)' : '';
+    btn.style.background = on ? 'var(--gold)' : '';
+    if (on) tone(330, 0.3);
+  });
+  document.addEventListener('onrol:slide', (e) => { tone(freqs[e.detail] || 261, 0.8, 0.045); tone(880, 0.05, 0.02); });
+})();
+
+/* ===== Build-with-AI demo (plan → act → done) ===== */
+(function () {
+  const form = document.getElementById('demoForm');
+  const input = document.getElementById('demoInput');
+  const steps = document.getElementById('demoSteps');
+  if (!form || !steps) return;
+  let running = false;
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (running) return;
+    const task = (input.value || 'email new leads').trim();
+    const plan = [
+      'Understanding: "' + task + '"',
+      'Planning the steps',
+      'Calling tools & APIs',
+      'Executing the workflow',
+      'Done — shipped ✓'
+    ];
+    steps.innerHTML = '';
+    const lis = plan.map((txt) => {
+      const li = document.createElement('li');
+      li.innerHTML = '<span class="tick">›</span><span>' + txt + '</span>';
+      steps.appendChild(li); return li;
+    });
+    running = true;
+    let i = 0;
+    (function next() {
+      if (i > 0) { lis[i - 1].classList.add('done'); lis[i - 1].querySelector('.tick').textContent = '✓'; }
+      if (i < lis.length) { lis[i].classList.add('show'); i++; setTimeout(next, 720); }
+      else { running = false; }
+    })();
+  });
+})();
+
+/* ===== Persona picker ===== */
+(function () {
+  const chips = document.getElementById('chips');
+  const out = document.getElementById('chipsOut');
+  if (!chips || !out) return;
+  chips.addEventListener('click', (e) => {
+    const c = e.target.closest('.chip'); if (!c) return;
+    chips.querySelectorAll('.chip').forEach((x) => x.classList.toggle('is-active', x === c));
+    out.innerHTML = 'We\'d start you on <em>' + c.dataset.rec + '</em>.';
+  });
+})();
+
+/* ===== Inline apply form ===== */
+(function () {
+  const form = document.getElementById('applyForm');
+  const msg = document.getElementById('applyMsg');
+  if (!form) return;
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = document.getElementById('applyName').value.trim();
+    const email = document.getElementById('applyEmail').value.trim();
+    if (!name || !email) return;
+    msg.textContent = 'Thanks, ' + name + '! Confirm your spot — opening your email…';
+    setTimeout(() => {
+      window.location.href = 'mailto:info@onrol.in?subject=' +
+        encodeURIComponent('Application — ' + name) +
+        '&body=' + encodeURIComponent('Name: ' + name + '\nEmail: ' + email + '\n\nI\'d like to apply to the next ONROL cohort.');
+    }, 700);
+  });
 })();

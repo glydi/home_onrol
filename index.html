@@ -39,6 +39,7 @@
         <a class="hdr__link" data-wall="3">Websites</a>
         <a class="hdr__link" data-wall="4">Personas</a>
       </nav>
+      <button class="theme-btn" id="soundBtn" aria-label="Toggle sound">♪</button>
       <button class="theme-btn" id="themeBtn" aria-label="Toggle theme">☀</button>
     </div>
   </header>
@@ -173,6 +174,43 @@
       <h2 class="display savoir__line reveal">We don't just teach AI.<br />We help you <em>ship it</em>.</h2>
       <p class="savoir__copy reveal">Customized 30-day tracks for 12 personas — Engineers, Students, Teachers, Sales &amp; Marketing pros, Real-estate agents, Founders, Working professionals, Job-seekers, Freelancers, Content creators, SMB owners, and Women returning to work. Live, online, no coding needed.</p>
       <a href="mailto:info@onrol.in" class="btn reveal">Apply now</a>
+    </section>
+
+    <section class="demo" id="demo">
+      <p class="eyebrow reveal">Try it</p>
+      <h2 class="display sec-title reveal">Build with AI</h2>
+      <div class="demo__box reveal">
+        <form class="demo__form" id="demoForm">
+          <input id="demoInput" type="text" placeholder="describe a task… e.g. email new leads" autocomplete="off" />
+          <button class="btn" type="submit">Run →</button>
+        </form>
+        <ul class="demo__steps" id="demoSteps"></ul>
+      </div>
+    </section>
+
+    <section class="personas-pick">
+      <p class="eyebrow reveal">AI for every persona</p>
+      <h2 class="display sec-title reveal">Pick your track</h2>
+      <div class="chips reveal" id="chips">
+        <button class="chip" data-rec="AI Automations — free up your day">Student</button>
+        <button class="chip" data-rec="AI Agents — ship internal tools">Engineer</button>
+        <button class="chip" data-rec="Vibe-Coded Websites — launch your product">Founder</button>
+        <button class="chip" data-rec="AI Automations — win back hours">Working pro</button>
+        <button class="chip" data-rec="Agents + Sites — productize your craft">Freelancer</button>
+        <button class="chip" data-rec="Vibe-Coded Websites — scale content">Creator</button>
+      </div>
+      <p class="chips__out" id="chipsOut">Choose a persona to see your recommended start →</p>
+    </section>
+
+    <section class="apply" id="apply">
+      <p class="eyebrow reveal">Rolling admissions</p>
+      <h2 class="display savoir__line reveal">Apply to the next cohort</h2>
+      <form class="apply__form reveal" id="applyForm">
+        <input id="applyName" type="text" placeholder="your name" required />
+        <input id="applyEmail" type="email" placeholder="email" required />
+        <button class="btn" type="submit">Apply →</button>
+      </form>
+      <p class="apply__msg" id="applyMsg"></p>
     </section>
 
     <footer class="foot">
