@@ -13,13 +13,16 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none; }
+/* hide the native scrollbar (the custom right-edge rail shows progress instead) */
+html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; display: none; }
 body {
   font-family: var(--sans);
   background: var(--bg);
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  scrollbar-width: none; -ms-overflow-style: none;
 }
 a { text-decoration: none; color: inherit; }
 button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
