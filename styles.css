@@ -233,6 +233,15 @@ body.orange-cursor, body.orange-cursor * { cursor: none !important; }
   transform: rotateX(calc(var(--py, 0) * -3deg)) rotateY(calc(var(--px, 0) * 3deg));
   transition: transform .25s ease-out;
 }
+/* gentle life: each line drifts at its own pace so slides never feel stagnant
+   (parent tilts with the cursor; the children bob — works on mobile too) */
+@keyframes slideFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+.wall__in > * { animation: slideFloat 7s ease-in-out infinite; will-change: transform; }
+.wall__in > *:nth-child(1) { animation-duration: 7s;   animation-delay: -0.4s; }
+.wall__in > *:nth-child(2) { animation-duration: 8.6s; animation-delay: -1.6s; }
+.wall__in > *:nth-child(3) { animation-duration: 9.4s; animation-delay: -2.8s; }
+.wall__in > *:nth-child(4) { animation-duration: 8s;   animation-delay: -0.9s; }
+.wall__in > *:nth-child(5) { animation-duration: 9s;   animation-delay: -3.4s; }
 
 /* atmospheric vignette over the hall */
 .vignette { position: absolute; inset: 0; z-index: 50; pointer-events: none;
@@ -389,7 +398,7 @@ body.orange-cursor, body.orange-cursor * { cursor: none !important; }
 .m-card .desc { font-size: 16px; color: var(--muted); max-width: 440px; }
 .m-card .link { color: var(--gold); }
 
-@media (prefers-reduced-motion: reduce) { .orb { animation: none; } .intro__line { animation: none; width: 220px; } }
+@media (prefers-reduced-motion: reduce) { .orb { animation: none; } .intro__line { animation: none; width: 220px; } .wall__in > * { animation: none; } }
 
 /* the 3D hall now runs on every device (responsive); the .m-slides vertical
    fallback only shows when JS is unavailable */
