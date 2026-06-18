@@ -332,26 +332,43 @@ if (typeof window.__useHall === 'undefined') {
   for (let i = 0; i < 100; i++) { const c = document.createElement('span'); c.className = 'px'; matrix.appendChild(c); cells.push(c); }
 
   let eox = 0, eoy = 0;        // eye offset (looks toward cursor)
-  let mouth = 'smile';         // 'smile' (happy) | 'open' (excited)
+  // expression: smile | open | grin | happy | wink | think | wow | cool | sad
+  let mouth = 'smile';
   let blink = false, busy = false;
 
   function set(a, r, c) { if (r >= 0 && r < 10 && c >= 0 && c < 10) a[r * 10 + c] = true; }
+
+  // ---- eye styles ----
+  function eyesBlock(a) { for (let r = 0; r < 2; r++) for (let c = 0; c < 2; c++) { set(a, 2 + eoy + r, 2 + eox + c); set(a, 2 + eoy + r, 6 + eox + c); } }
+  function eyesBlink(a) { for (let c = 0; c < 2; c++) { set(a, 3 + eoy, 2 + eox + c); set(a, 3 + eoy, 6 + eox + c); } }
+  function eyesHappy(a) { set(a, 3, 1); set(a, 2, 2); set(a, 3, 3); set(a, 3, 6); set(a, 2, 7); set(a, 3, 8); }   // ^ ^
+  function eyesWink(a) { for (let r = 0; r < 2; r++) for (let c = 0; c < 2; c++) set(a, 2 + r, 2 + c); set(a, 3, 6); set(a, 3, 7); }
+  function eyesWide(a) { for (let r = 0; r < 2; r++) for (let c = 0; c < 3; c++) { set(a, 2 + r, 2 + c); set(a, 2 + r, 6 + c); } }
+  function eyesCool(a) { for (let c = 1; c <= 8; c++) set(a, 3, c); for (let c = 1; c <= 3; c++) set(a, 2, c); for (let c = 6; c <= 8; c++) set(a, 2, c); }   // shades
+
+  // ---- mouth styles ----
+  function mSmile(a) { set(a, 6, 0); set(a, 6, 9); set(a, 7, 1); set(a, 7, 8); for (let c = 2; c <= 7; c++) set(a, 8, c); }
+  function mOpen(a) { for (let c = 3; c <= 6; c++) { set(a, 5, c); set(a, 8, c); } set(a, 6, 2); set(a, 7, 2); set(a, 6, 7); set(a, 7, 7); }
+  function mGrin(a) { set(a, 6, 2); set(a, 6, 7); for (let c = 2; c <= 7; c++) set(a, 7, c); for (let c = 3; c <= 6; c++) set(a, 8, c); }
+  function mThink(a) { set(a, 8, 4); set(a, 8, 5); set(a, 8, 6); set(a, 7, 6); }
+  function mSad(a) { set(a, 6, 3); set(a, 6, 4); set(a, 6, 5); set(a, 6, 6); set(a, 7, 2); set(a, 7, 7); }   // frown
+
   function draw() {
     const a = new Array(100).fill(false);
-    // eyes (2×2 each), shifted toward the cursor; a thin line when blinking
-    if (blink) {
-      for (let c = 0; c < 2; c++) { set(a, 3 + eoy, 2 + eox + c); set(a, 3 + eoy, 6 + eox + c); }
-    } else {
-      for (let r = 0; r < 2; r++) for (let c = 0; c < 2; c++) { set(a, 2 + eoy + r, 2 + eox + c); set(a, 2 + eoy + r, 6 + eox + c); }
-    }
+    const m = mouth;
+    // eyes
+    if (m === 'happy') eyesHappy(a);
+    else if (m === 'wink') eyesWink(a);
+    else if (m === 'cool') eyesCool(a);
+    else if (m === 'wow') eyesWide(a);
+    else if (blink) eyesBlink(a);
+    else eyesBlock(a);
     // mouth
-    if (mouth === 'smile') {                 // happy U-smile
-      set(a, 6, 0); set(a, 6, 9); set(a, 7, 1); set(a, 7, 8);
-      for (let c = 2; c <= 7; c++) set(a, 8, c);
-    } else {                                  // excited open mouth (O)
-      for (let c = 3; c <= 6; c++) { set(a, 5, c); set(a, 8, c); }
-      set(a, 6, 2); set(a, 7, 2); set(a, 6, 7); set(a, 7, 7);
-    }
+    if (m === 'open' || m === 'wow') mOpen(a);
+    else if (m === 'grin') mGrin(a);
+    else if (m === 'think') mThink(a);
+    else if (m === 'sad') mSad(a);
+    else mSmile(a);
     for (let i = 0; i < 100; i++) cells[i].classList.toggle('on', a[i]);
   }
 
@@ -364,13 +381,22 @@ if (typeof window.__useHall === 'undefined') {
     eoy = Math.max(-1, Math.min(1, Math.round(dy / 130)));
     draw();
   });
-  face.addEventListener('mouseenter', () => { if (!busy) { mouth = 'open'; draw(); } });
+  face.addEventListener('mouseenter', () => { if (!busy) { mouth = 'grin'; draw(); } });
   face.addEventListener('mouseleave', () => { if (!busy) { mouth = 'smile'; draw(); } });
 
   // occasional blink
   setInterval(() => { if (busy) return; blink = true; draw(); setTimeout(() => { blink = false; draw(); }, 130); }, 3200);
 
   const bot = document.getElementById('bot');
+
+  // idle playfulness: now and then flash a fun expression, then settle back
+  const idleExpr = ['happy', 'wink', 'grin', 'cool'];
+  setInterval(() => {
+    if (busy || bot.classList.contains('asking')) return;
+    mouth = idleExpr[Math.floor(Math.random() * idleExpr.length)];
+    draw();
+    setTimeout(() => { if (!busy && !bot.classList.contains('asking')) { mouth = 'smile'; draw(); } }, 1100);
+  }, 6500);
   const askForm = document.getElementById('botAsk');
   const input = document.getElementById('botInput');
   let t;
@@ -421,13 +447,13 @@ if (typeof window.__useHall === 'undefined') {
   // typing indicator + types the answer out
   let typeT;
   function typeOut(text) {
-    busy = true; mouth = 'smile'; blink = false; draw();
+    busy = true; mouth = 'think'; blink = false; draw();   // ponder while the "…" shows
     bubble.classList.remove('is-hidden');
     bubble.textContent = '…';
     clearTimeout(t); clearTimeout(typeT);
     let i = 0;
     setTimeout(function step() {
-      if (i === 0) bubble.textContent = '';
+      if (i === 0) { bubble.textContent = ''; mouth = 'grin'; draw(); }   // then answer with a grin
       bubble.textContent = text.slice(0, ++i);
       if (i < text.length) typeT = setTimeout(step, 22);
       else t = setTimeout(() => { busy = false; draw(); if (!bot.classList.contains('asking')) bubble.classList.add('is-hidden'); }, 7000);
@@ -446,7 +472,7 @@ if (typeof window.__useHall === 'undefined') {
   let rt1, rt2;
   document.addEventListener('onrol:slide', (e) => {
     const i = e.detail;
-    busy = true; mouth = 'open'; blink = false; draw();   // excited reaction
+    busy = true; mouth = 'wow'; blink = false; draw();   // wide-eyed reaction
     bubble.textContent = slideMsgs[i] || '';
     bubble.classList.remove('is-hidden');
     clearTimeout(rt1); clearTimeout(rt2);
