@@ -105,6 +105,8 @@ body.orange-cursor, body.orange-cursor * { cursor: none !important; }
   transition: width .15s ease, height .15s ease, background .15s ease;
 }
 .cur-dot.is-down { width: 20px; height: 20px; background: var(--accent-2, #ff9533); }
+/* over a clickable slide: become a ring that invites a click */
+.cur-dot.is-link { width: 30px; height: 30px; background: transparent; border: 2px solid var(--gold); box-shadow: 0 0 12px rgba(255,106,31,.45); }
 
 /* live coordinates, top-right */
 .coords {
@@ -315,6 +317,24 @@ body.orange-cursor, body.orange-cursor * { cursor: none !important; }
 .scroll-cue span { animation: bob 1.8s ease-in-out infinite; color: var(--gold); }
 @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
 
+/* "click any slide to explore" — affordance so users know slides open detail */
+.tap-hint {
+  position: absolute; left: 50%; bottom: 13%; transform: translateX(-50%);
+  z-index: 55; display: inline-flex; align-items: center; gap: 9px; white-space: nowrap;
+  font-family: var(--alt); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--ink); background: rgba(20,12,6,.5); border: 1px solid var(--line);
+  padding: 8px 16px; border-radius: 999px; backdrop-filter: blur(6px);
+  pointer-events: none; animation: tapBob 2.4s ease-in-out infinite;
+  transition: opacity .5s ease, transform .5s ease;
+}
+.tap-hint__ring { width: 9px; height: 9px; border-radius: 50%; background: var(--gold); animation: tapPulse 1.8s ease-out infinite; }
+.tap-hint.is-gone { opacity: 0; transform: translateX(-50%) translateY(10px); }
+@keyframes tapPulse { 0% { box-shadow: 0 0 0 0 rgba(255,106,31,.55); } 70% { box-shadow: 0 0 0 10px rgba(255,106,31,0); } 100% { box-shadow: 0 0 0 0 rgba(255,106,31,0); } }
+@keyframes tapBob { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(-4px); } }
+body.light .tap-hint { background: rgba(255,247,238,.62); }
+body.low-fx .tap-hint { backdrop-filter: none; animation: none; }
+body.low-fx .tap-hint__ring { animation: none; }
+
 /* ===== After / detail sections ===== */
 .after { position: relative; z-index: 2; background: var(--bg); }
 .collection { padding: 120px 44px 90px; max-width: 1180px; margin: 0 auto; }
@@ -398,7 +418,7 @@ body.orange-cursor, body.orange-cursor * { cursor: none !important; }
 .m-card .desc { font-size: 16px; color: var(--muted); max-width: 440px; }
 .m-card .link { color: var(--gold); }
 
-@media (prefers-reduced-motion: reduce) { .orb { animation: none; } .intro__line { animation: none; width: 220px; } .wall__in > * { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .orb { animation: none; } .intro__line { animation: none; width: 220px; } .wall__in > * { animation: none; } .tap-hint, .tap-hint__ring { animation: none; } }
 
 /* the 3D hall now runs on every device (responsive); the .m-slides vertical
    fallback only shows when JS is unavailable */

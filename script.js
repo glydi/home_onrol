@@ -319,6 +319,11 @@ if (typeof window.__useHall === 'undefined') {
   });
   document.addEventListener('mousedown', () => dot.classList.add('is-down'));
   document.addEventListener('mouseup', () => dot.classList.remove('is-down'));
+  // grow into a ring over a clickable slide, so it clearly invites a click
+  document.querySelectorAll('.wall').forEach((w) => {
+    w.addEventListener('mouseenter', () => dot.classList.add('is-link'));
+    w.addEventListener('mouseleave', () => dot.classList.remove('is-link'));
+  });
 })();
 
 /* ===== 10×10 pixel bot — happy, eyes follow the cursor, answers when asked ===== */
@@ -538,8 +543,20 @@ if (typeof window.__useHall === 'undefined') {
     { eye: 'Rolling admissions', title: 'Join the next cohort', lead: '30 days · live · online · no coding needed.', bullets: ['Rolling admissions', '4.95/5 average rating', '2,400+ alumni · 10,000+ builders'] }
   ];
 
+  // "click to explore" hint — teach once, then remember it's been seen
+  const tapHint = document.getElementById('tapHint');
+  let hintGone = false;
+  function dismissHint() {
+    if (hintGone) return; hintGone = true;
+    if (tapHint) tapHint.classList.add('is-gone');
+    try { localStorage.setItem('onrol-tap', '1'); } catch (e) {}
+  }
+  try { if (localStorage.getItem('onrol-tap')) dismissHint(); } catch (e) {}
+  setTimeout(dismissHint, 15000);   // fall away on its own if ignored
+
   function open(i) {
     const d = DATA[i]; if (!d) return;
+    dismissHint();
     dEye.textContent = d.eye; dTitle.textContent = d.title; dLead.textContent = d.lead;
     dList.innerHTML = '';
     d.bullets.forEach((b) => { const li = document.createElement('li'); li.textContent = b; dList.appendChild(li); });
