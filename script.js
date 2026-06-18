@@ -280,6 +280,7 @@ if (typeof window.__useHall === 'undefined') {
   const objs = Array.prototype.slice.call(document.querySelectorAll('.obj__inner'));
   const root = document.documentElement;
   const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const lowFx = window.__lowFx;
 
   let tx = 0, ty = 0, cx = 0, cy = 0, spin = 0;
   let fcnt = 0, twx = 0, twy = 0, wx = 0, wy = 0;   // evolving (wandering) glow target
@@ -289,24 +290,31 @@ if (typeof window.__useHall === 'undefined') {
   });
   window.addEventListener('mouseleave', () => { tx = 0; ty = 0; });
 
-  (function loop() {
-    cx += (tx - cx) * 0.06;
-    cy += (ty - cy) * 0.06;
-    if (!reduce) spin += 0.35;
-    root.style.setProperty('--px', cx.toFixed(3));
-    root.style.setProperty('--py', cy.toFixed(3));
+  // low-end: keep the blurred glow static so the heavy blur layer rasterizes
+  // once (a moving glow would force the GPU to re-blur every frame)
+  if (lowFx) {
+    root.style.setProperty('--gx', '0%');
+    root.style.setProperty('--gy', '0%');
+  } else {
+    (function loop() {
+      cx += (tx - cx) * 0.06;
+      cy += (ty - cy) * 0.06;
+      if (!reduce) spin += 0.35;
+      root.style.setProperty('--px', cx.toFixed(3));
+      root.style.setProperty('--py', cy.toFixed(3));
 
-    // glow evolves to new random positions, and the cursor pushes it around
-    if (!reduce && (++fcnt % 200 === 0)) { twx = Math.random() * 2 - 1; twy = Math.random() * 2 - 1; }
-    wx += (twx - wx) * 0.012;
-    wy += (twy - wy) * 0.012;
-    root.style.setProperty('--gx', (wx * 24 + cx * 13).toFixed(2) + '%');
-    root.style.setProperty('--gy', (wy * 17 + cy * 9).toFixed(2) + '%');
+      // glow evolves to new random positions, and the cursor pushes it around
+      if (!reduce && (++fcnt % 200 === 0)) { twx = Math.random() * 2 - 1; twy = Math.random() * 2 - 1; }
+      wx += (twx - wx) * 0.012;
+      wy += (twy - wy) * 0.012;
+      root.style.setProperty('--gx', (wx * 24 + cx * 13).toFixed(2) + '%');
+      root.style.setProperty('--gy', (wy * 17 + cy * 9).toFixed(2) + '%');
 
-    const tf = 'rotateX(' + (12 - cy * 20).toFixed(2) + 'deg) rotateY(' + (spin + cx * 30).toFixed(2) + 'deg)';
-    for (let i = 0; i < objs.length; i++) objs[i].style.transform = tf;
-    requestAnimationFrame(loop);
-  })();
+      const tf = 'rotateX(' + (12 - cy * 20).toFixed(2) + 'deg) rotateY(' + (spin + cx * 30).toFixed(2) + 'deg)';
+      for (let i = 0; i < objs.length; i++) objs[i].style.transform = tf;
+      requestAnimationFrame(loop);
+    })();
+  }
 })();
 
 /* ===== Orange-dot cursor + live coordinates (top-right) ===== */

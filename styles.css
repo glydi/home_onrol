@@ -63,23 +63,18 @@ em { font-style: normal; color: var(--gold); }
   z-index: 1;
 }
 .hall.grabbing { cursor: grabbing; }
-/* dynamic glowing-orange gradient — follows the cursor (--px/--py) and drifts */
+/* glowing-orange bloom — follows the cursor (--gx/--gy); a soft blur turns the
+   gradients into a smooth glow with no banding rings (overflow-hidden clips the
+   blurred edges, so the layer is extended past the viewport via negative inset) */
 .hall::before {
-  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  content: ""; position: absolute; inset: -12%; z-index: 0; pointer-events: none;
   background:
     radial-gradient(72% 66% at calc(50% + var(--gx,0%)) calc(42% + var(--gy,0%)),
-      rgba(255,142,62,.15) 0%, rgba(255,136,56,.125) 14%, rgba(255,130,50,.10) 28%,
-      rgba(255,122,44,.072) 42%, rgba(255,116,38,.045) 56%, rgba(255,110,34,.022) 70%,
-      rgba(255,108,32,.008) 82%, transparent 92%),
-    radial-gradient(95% 85% at calc(50% - var(--gx,0%)) 128%,
-      rgba(255,112,32,.13) 0%, rgba(255,110,31,.085) 28%, rgba(255,108,30,.04) 52%,
-      rgba(255,108,30,.012) 72%, transparent 90%),
+      rgba(255,142,62,.16) 0%, rgba(255,128,48,.09) 34%, rgba(255,116,38,.035) 60%, transparent 82%),
+    radial-gradient(95% 85% at calc(50% - var(--gx,0%)) 124%,
+      rgba(255,112,32,.14) 0%, rgba(255,110,31,.05) 46%, transparent 78%),
     radial-gradient(120% 110% at 50% 42%, #1a0c04 0%, #160b05 38%, #110905 64%, var(--bg) 92%);
-  animation: bgdrift 22s ease-in-out infinite alternate;
-}
-@keyframes bgdrift {
-  from { filter: saturate(1.05) brightness(.96); }
-  to   { filter: saturate(1.12) brightness(1.02); }
+  filter: blur(36px) saturate(1.08);
 }
 /* faint grain dither to remove gradient banding (the "rings/breaks" in the glow) */
 .hall::after {
