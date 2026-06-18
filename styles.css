@@ -387,10 +387,11 @@ body.orange-cursor, body.orange-cursor * { cursor: none !important; }
 /* cubes / 3D objects removed — keep the turning hall, drop the decorations */
 .obj { display: none !important; }
 
-/* low-end: strip the expensive effects (blur, grain, glows, idle animations) */
+/* low-end: strip the expensive effects (blur, glows, idle animations).
+   NOTE: the .hall::after grain dither is kept — it removes gradient banding
+   (the "rings/lines" in the glow); it's a static overlay, so it's cheap. */
 body.low-fx .hdr { backdrop-filter: none; }
 body.low-fx .hall { animation: none; }
-body.low-fx .hall::after { display: none; }                       /* noise-grain layer */
 body.low-fx .spark { animation: none; opacity: .55; box-shadow: none; }
 body.low-fx .wall::before { animation: none; }
 body.low-fx .scroll-cue span { animation: none; }
