@@ -146,9 +146,19 @@ body.orange-cursor, body.orange-cursor * { cursor: none !important; }
   position: absolute; left: 50%; top: 50%; border-radius: 50%;
   background: #ffe2bd; box-shadow: 0 0 5px 1px rgba(255,160,90,.7);
   pointer-events: none;
-  animation-name: twinkle; animation-iteration-count: infinite; animation-timing-function: ease-in-out;
+  /* twinkle (opacity) + continuous drift (translate composes with the 3D
+     placement transform, so the stars keep floating even when idle) */
+  animation: twinkle var(--tw, 8s) ease-in-out var(--dl, 0s) infinite,
+             sparkDrift var(--dr, 13s) ease-in-out var(--dl, 0s) infinite;
 }
 @keyframes twinkle { 0%,100% { opacity: .06; } 50% { opacity: .9; } }
+@keyframes sparkDrift {
+  0%   { translate: 0 0; }
+  25%  { translate: 3px -6px; }
+  50%  { translate: -2px -10px; }
+  75%  { translate: -4px -4px; }
+  100% { translate: 0 0; }
+}
 .ring { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform-style: preserve-3d; will-change: transform; }
 
 /* walls */
@@ -310,8 +320,9 @@ body.orange-cursor, body.orange-cursor * { cursor: none !important; }
   position: fixed; right: 26px; bottom: 26px; z-index: 90;
   display: flex; flex-direction: column; align-items: flex-end; gap: 12px;
 }
-/* panel container is transparent; its children carry the look per mode */
-.bot__panel { position: absolute; right: calc(100% + 14px); bottom: 6px; width: 222px; box-sizing: border-box; }
+/* panel container is transparent; its children carry the look per mode.
+   bottom set so the idle bubble's centre lines up with Vector's face. */
+.bot__panel { position: absolute; right: calc(100% + 14px); bottom: -6px; width: 222px; box-sizing: border-box; }
 .bot__head, .bot__ask { display: none; }
 
 /* IDLE: the bubble looks like a speech bubble with a tail */
@@ -331,33 +342,36 @@ body.orange-cursor, body.orange-cursor * { cursor: none !important; }
 }
 .bot__bubble.is-hidden { opacity: 0; transform: translateX(8px); pointer-events: none; }
 
-/* CHAT (asking): the panel becomes one cohesive terminal-style window */
+/* CHAT (asking): a bigger, cohesive window with soft (not bold) lines */
 .bot.asking .bot__panel {
-  border: 2px solid var(--gold); border-radius: 5px;
-  box-shadow: 0 0 30px rgba(255,106,31,.45), inset 0 0 40px rgba(255,106,31,.05);
-  background: repeating-linear-gradient(rgba(255,106,31,.05) 0 1px, transparent 1px 3px), rgba(12,8,4,.97);
+  width: min(290px, calc(100vw - 88px));
+  border: 1px solid rgba(255,106,31,.32); border-radius: 7px;
+  box-shadow: 0 12px 34px rgba(0,0,0,.42), 0 0 16px rgba(255,106,31,.14);
+  background: repeating-linear-gradient(rgba(255,106,31,.03) 0 1px, transparent 1px 3px), rgba(12,8,4,.97);
 }
 .bot.asking .bot__panel::after {
-  content: ""; position: absolute; right: -9px; bottom: 12px; width: 9px; height: 9px;
-  background: rgba(12,8,4,.97); border-right: 2px solid var(--gold); border-top: 2px solid var(--gold);
+  content: ""; position: absolute; right: -7px; bottom: 13px; width: 8px; height: 8px;
+  background: rgba(12,8,4,.97); border-right: 1px solid rgba(255,106,31,.32); border-top: 1px solid rgba(255,106,31,.32);
   transform: rotate(45deg);
 }
-.bot.asking .bot__bubble { border: none; background: transparent; box-shadow: none; border-radius: 0; align-items: flex-start; min-height: 46px; }
+.bot.asking .bot__bubble {
+  border: none; background: transparent; box-shadow: none; border-radius: 0;
+  align-items: flex-start; min-height: 66px; font-size: 9px; line-height: 1.85; padding: 14px 16px;
+}
 .bot.asking .bot__bubble::after { display: none; }
 .bot.asking .bot__bubble.is-hidden { opacity: 1; transform: none; }   /* keep the log visible while chatting */
 .bot__head {
-  align-items: center; gap: 7px; padding: 8px 11px;
-  font-family: var(--alt); font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
-  color: var(--gold); border-bottom: 1px dashed var(--gold-soft);
+  align-items: center; gap: 8px; padding: 10px 14px;
+  font-family: var(--alt); font-size: 9.5px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--gold); border-bottom: 1px solid rgba(255,106,31,.14);   /* soft line */
 }
 .bot.asking .bot__head { display: flex; }
 .bot__dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 6px #4ade80; animation: botDot 1.4s ease-in-out infinite; }
 .bot__status { margin-left: auto; color: var(--muted); letter-spacing: 1px; }
 @keyframes botDot { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
-.bot.asking .bot__bubble { align-items: flex-start; min-height: 46px; }
 .bot.asking .bot__ask {
-  display: flex; align-items: center; gap: 7px; padding: 8px 11px;
-  border-top: 1px dashed var(--gold-soft);
+  display: flex; align-items: center; gap: 8px; padding: 10px 14px;
+  border-top: 1px solid rgba(255,106,31,.14);   /* soft line */
 }
 .bot__caret { font-family: 'Press Start 2P', monospace; font-size: 9px; color: var(--gold); }
 .bot__send { font-family: var(--alt); font-size: 15px; color: var(--gold); padding: 0 2px; line-height: 1; transition: color .2s, transform .2s; }
@@ -514,6 +528,7 @@ body.low-fx .tap-hint::before, body.low-fx .tap-hint__ring { animation: none; }
   .intro__bar i { animation: none; width: 100%; }
   .wall__in > * { animation: none; }
   .tap-hint, .tap-hint::before, .tap-hint__ring { animation: none; }
+  .spark { animation: none; }
 }
 
 /* the 3D hall now runs on every device (responsive); the .m-slides vertical
@@ -529,7 +544,8 @@ body.low-fx .tap-hint::before, body.low-fx .tap-hint__ring { animation: none; }
    (the "rings/lines" in the glow); it's a static overlay, so it's cheap. */
 body.low-fx .hdr { backdrop-filter: none; }
 body.low-fx .hall { animation: none; }
-body.low-fx .spark { animation: none; opacity: .55; box-shadow: none; }
+/* low-end: keep the cheap drift (compositor transform), drop the opacity twinkle */
+body.low-fx .spark { animation: sparkDrift var(--dr, 13s) ease-in-out var(--dl, 0s) infinite; opacity: .55; box-shadow: none; }
 body.low-fx .wall::before { animation: none; }
 body.low-fx .scroll-cue span { animation: none; }
 body.low-fx .bot__bubble, body.low-fx .bot__face { box-shadow: none; }

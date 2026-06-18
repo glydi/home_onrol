@@ -52,8 +52,9 @@ if (typeof window.__useHall === 'undefined') {
     const size = (1 + near * 2.6).toFixed(1);
     s.style.width = size + 'px'; s.style.height = size + 'px';
     s.style.transform = 'translate(-50%,-50%) rotateY(' + a.toFixed(1) + 'deg) translateZ(' + (-r).toFixed(0) + 'px) translateY(' + y.toFixed(0) + 'px)';
-    s.style.animationDuration = (6 + Math.random() * 9).toFixed(1) + 's';   // slow, varied
-    s.style.animationDelay = (-Math.random() * 12).toFixed(1) + 's';        // random phase
+    s.style.setProperty('--tw', (6 + Math.random() * 9).toFixed(1) + 's');   // twinkle period
+    s.style.setProperty('--dr', (9 + Math.random() * 9).toFixed(1) + 's');   // drift period
+    s.style.setProperty('--dl', (-Math.random() * 12).toFixed(1) + 's');     // random phase
     ring.appendChild(s);
   }
 
