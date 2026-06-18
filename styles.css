@@ -5,6 +5,8 @@
   --gold: #ff6a1f;          /* orange accent */
   --gold-soft: rgba(255,106,31,.5);
   --line: rgba(255,106,31,.22);
+  --peach: #ffd2ad;         /* soft peach — subtle warm highlight */
+  --amber: #f3b765;         /* gentle gold */
   --display: 'Satoshi', 'Inter', sans-serif;          /* branding / marketing */
   --alt: 'Geist', 'Inter', sans-serif;                /* premium alternative */
   --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; /* primary */
@@ -311,7 +313,12 @@ body.orange-cursor, body.orange-cursor * { cursor: none !important; }
   max-width: 1180px; margin: 0 auto;
 }
 .stat { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.stat__num { font-family: var(--display); font-size: clamp(34px, 5vw, 60px); font-weight: 600; letter-spacing: -1px; }
+.stat__num {
+  font-family: var(--display); font-size: clamp(34px, 5vw, 60px); font-weight: 600; letter-spacing: -1px;
+  /* subtle peach-gold flavour */
+  background: linear-gradient(120deg, var(--peach), var(--amber));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
 .stat__label { font-family: var(--alt); font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
 
 .savoir { padding: 110px 44px; max-width: 900px; margin: 0 auto; text-align: center;
@@ -526,20 +533,20 @@ body.light .bot__bubble, body.light .bot__input { color: #fff3ea; }
   .foot { flex-direction: column; align-items: flex-start; }
 }
 
-/* ===== Scroll-progress rail (right edge) ===== */
+/* ===== Scroll-progress rail (right edge) — very thin hairline ===== */
 .scroll-rail {
   position: fixed; right: 16px; top: 50%; transform: translateY(-50%);
-  width: 3px; height: 40vh; max-height: 360px; border-radius: 3px;
-  background: var(--line); overflow: hidden; z-index: 80; pointer-events: none;
+  width: 1px; height: 42vh; max-height: 380px; border-radius: 1px;
+  background: rgba(255,106,31,.16); overflow: hidden; z-index: 80; pointer-events: none;
 }
 .scroll-rail__fill {
   display: block; width: 100%; height: 0;
-  background: linear-gradient(var(--gold), #ffb15a);
-  box-shadow: 0 0 8px rgba(255,106,31,.55);
+  background: linear-gradient(var(--amber), var(--peach));
+  box-shadow: 0 0 6px rgba(255,170,90,.5);
   transition: height .12s linear;
 }
 body.low-fx .scroll-rail__fill { box-shadow: none; }
-@media (max-width: 560px) { .scroll-rail { right: 10px; height: 32vh; width: 2px; } }
+@media (max-width: 560px) { .scroll-rail { right: 9px; height: 34vh; } }
 
 /* ===== Phone ===== */
 @media (max-width: 560px) {
