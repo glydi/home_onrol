@@ -31,13 +31,16 @@
   <!-- ===== Header ===== -->
   <header class="hdr" id="top">
     <a href="#top" class="wordmark">ONROL</a>
-    <nav class="hdr__nav">
-      <a class="hdr__link" data-wall="0">Home</a>
-      <a class="hdr__link" data-wall="1">Automations</a>
-      <a class="hdr__link" data-wall="2">Agents</a>
-      <a class="hdr__link" data-wall="3">Websites</a>
-      <a class="hdr__link" data-wall="4">Personas</a>
-    </nav>
+    <div class="hdr__right">
+      <nav class="hdr__nav">
+        <a class="hdr__link" data-wall="0">Home</a>
+        <a class="hdr__link" data-wall="1">Automations</a>
+        <a class="hdr__link" data-wall="2">Agents</a>
+        <a class="hdr__link" data-wall="3">Websites</a>
+        <a class="hdr__link" data-wall="4">Personas</a>
+      </nav>
+      <button class="theme-btn" id="themeBtn" aria-label="Toggle theme">☀</button>
+    </div>
   </header>
 
   <!-- ===== 3D circular hall (scroll-driven, pinned) ===== -->
@@ -112,10 +115,35 @@
 
     <button class="nav-arrow nav-arrow--prev" id="prev" aria-label="Turn left">‹</button>
     <button class="nav-arrow nav-arrow--next" id="next" aria-label="Turn right">›</button>
-    <div class="dots" id="dots"></div>
-    <a href="#tracks" class="scroll-cue">scroll to turn — then down <span>↓</span></a>
+    <div class="progress" id="progress">
+      <svg viewBox="0 0 100 100"><circle class="progress__bg" cx="50" cy="50" r="46"/><circle class="progress__fill" id="progressFill" cx="50" cy="50" r="46"/></svg>
+      <span class="progress__num" id="progressNum">1</span>
+    </div>
+    <a href="#tracks" class="scroll-cue">scroll · drag · ← → <span>↓</span></a>
   </div>
   </div><!-- /.pin-wrap -->
+
+  <!-- ===== Mobile fallback: clean vertical slides ===== -->
+  <section class="m-slides">
+    <article class="m-card"><p class="eyebrow">India's AI Execution School</p><h2 class="display">Turn AI curiosity into <em>shipped work</em></h2><p class="desc">Useful automations, deployable web apps, AI agents, and a portfolio that proves execution.</p></article>
+    <article class="m-card" data-detail="1"><p class="eyebrow">What you'll build</p><h2 class="display">AI Automations</h2><p class="desc">Automate workflows, lead routing, research, follow-ups, and daily operations.</p><span class="link">Explore →</span></article>
+    <article class="m-card" data-detail="2"><p class="eyebrow">What you'll build</p><h2 class="display">AI Agents</h2><p class="desc">Build tool-using agents that reason, call APIs, and complete multi-step tasks.</p><span class="link">Explore →</span></article>
+    <article class="m-card" data-detail="3"><p class="eyebrow">What you'll build</p><h2 class="display">Vibe-Coded Websites</h2><p class="desc">Ship polished pages and apps with AI-assisted coding, deployment, and iteration.</p><span class="link">Explore →</span></article>
+    <article class="m-card"><p class="eyebrow">AI for every aspirant</p><h2 class="display">Built for <em>12 personas</em></h2><p class="desc">Engineers · Students · Founders · Freelancers · Creators · SMB owners — and more.</p></article>
+    <article class="m-card"><p class="eyebrow">Rolling admissions</p><h2 class="display">Join the <em>next cohort</em></h2><p class="desc">30 days · Live · online · No coding needed.</p><a class="btn" href="mailto:info@onrol.in">Apply now</a></article>
+  </section>
+
+  <!-- ===== Detail overlay (click a slide to enter) ===== -->
+  <div class="detail" id="detail" aria-hidden="true">
+    <button class="detail__close" id="detailClose" aria-label="Close">✕</button>
+    <div class="detail__inner">
+      <p class="eyebrow" id="dEye"></p>
+      <h2 class="display detail__title" id="dTitle"></h2>
+      <p class="detail__lead" id="dLead"></p>
+      <ul class="detail__list" id="dList"></ul>
+      <a class="btn" id="dCta" href="mailto:info@onrol.in">Apply now</a>
+    </div>
+  </div>
 
   <!-- ===== Detail sections (scroll down) ===== -->
   <main class="after">
@@ -166,6 +194,7 @@
     <button class="bot__face" id="botFace" aria-label="Ask Vector">
       <div class="matrix" id="matrix"></div>
     </button>
+    <form class="bot__ask" id="botAsk"><input class="bot__input" id="botInput" type="text" placeholder="ask vector…" autocomplete="off" /></form>
   </div>
 
   <script src="script.js"></script>

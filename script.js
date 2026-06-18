@@ -9,6 +9,8 @@
   const hall = document.getElementById('hall');
   const ring = document.getElementById('ring');
   if (!pin || !hall || !ring) return;
+  // phones use the vertical fallback — skip the heavy 3D hall
+  if (window.matchMedia && window.matchMedia('(max-width: 760px)').matches) return;
 
   const walls = Array.prototype.slice.call(ring.querySelectorAll('.wall'));
   const C = walls.length;          // content walls
@@ -108,7 +110,7 @@
   function metrics() {
     return { top: pin.offsetTop, range: Math.max(1, pin.offsetHeight - window.innerHeight) };
   }
-  const HOLD = 0.45;   // slide holds, then a long SMOOTH transition brings the next
+  const HOLD = 0.3;    // brief hold, then a SMOOTH turn; scroll-idle snaps to a slide
   function targetAngle() {
     const m = metrics();
     const p = Math.min(1, Math.max(0, (window.scrollY - m.top) / m.range));
@@ -167,6 +169,24 @@
     window.scrollTo({ top: m.top + (+l.dataset.wall / C) * m.range, behavior: 'smooth' });
   }));
 
+  // snap to a slide (or out to the sections) when scrolling stops — never rest mid-turn
+  const pts = [];
+  for (let i = 0; i < C; i++) pts.push(i / C);
+  pts.push(1);                                  // 1 = unpinned, into the sections below
+  let snapT;
+  window.addEventListener('scroll', () => {
+    clearTimeout(snapT);
+    snapT = setTimeout(() => {
+      const m = metrics();
+      if (window.scrollY < m.top - 4 || window.scrollY > m.top + m.range + 4) return;
+      const p = (window.scrollY - m.top) / m.range;
+      let best = pts[0];
+      for (let i = 1; i < pts.length; i++) if (Math.abs(pts[i] - p) < Math.abs(best - p)) best = pts[i];
+      const target = m.top + best * m.range;
+      if (Math.abs(target - window.scrollY) > 2) window.scrollTo({ top: target, behavior: 'smooth' });
+    }, 120);
+  }, { passive: true });
+
   // always begin on the first slide (no restored scroll position)
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
   window.scrollTo(0, 0);
@@ -185,6 +205,7 @@
   const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   let tx = 0, ty = 0, cx = 0, cy = 0, spin = 0;
+  let fcnt = 0, twx = 0, twy = 0, wx = 0, wy = 0;   // evolving (wandering) glow target
   window.addEventListener('mousemove', (e) => {
     tx = (e.clientX / window.innerWidth - 0.5) * 2;
     ty = (e.clientY / window.innerHeight - 0.5) * 2;
@@ -197,10 +218,35 @@
     if (!reduce) spin += 0.35;
     root.style.setProperty('--px', cx.toFixed(3));
     root.style.setProperty('--py', cy.toFixed(3));
+
+    // glow evolves to new random positions, and the cursor pushes it around
+    if (!reduce && (++fcnt % 200 === 0)) { twx = Math.random() * 2 - 1; twy = Math.random() * 2 - 1; }
+    wx += (twx - wx) * 0.012;
+    wy += (twy - wy) * 0.012;
+    root.style.setProperty('--gx', (wx * 24 + cx * 13).toFixed(2) + '%');
+    root.style.setProperty('--gy', (wy * 17 + cy * 9).toFixed(2) + '%');
+
     const tf = 'rotateX(' + (12 - cy * 20).toFixed(2) + 'deg) rotateY(' + (spin + cx * 30).toFixed(2) + 'deg)';
     for (let i = 0; i < objs.length; i++) objs[i].style.transform = tf;
     requestAnimationFrame(loop);
   })();
+})();
+
+/* ===== Orange-dot cursor + live coordinates (top-right) ===== */
+(function () {
+  if (!window.matchMedia || !window.matchMedia('(pointer: fine)').matches) return;
+  const dot = document.createElement('div'); dot.className = 'cur-dot';
+  const coords = document.createElement('div'); coords.className = 'coords'; coords.textContent = 'X 0   Y 0';
+  document.body.appendChild(dot);
+  document.body.appendChild(coords);
+  document.body.classList.add('orange-cursor');
+
+  window.addEventListener('mousemove', (e) => {
+    dot.style.transform = 'translate(' + e.clientX + 'px,' + e.clientY + 'px) translate(-50%,-50%)';
+    coords.textContent = 'X ' + e.clientX + '   Y ' + e.clientY;
+  });
+  document.addEventListener('mousedown', () => dot.classList.add('is-down'));
+  document.addEventListener('mouseup', () => dot.classList.remove('is-down'));
 })();
 
 /* ===== 10×10 pixel bot — happy, eyes follow the cursor, answers when asked ===== */
@@ -252,27 +298,51 @@
   // occasional blink
   setInterval(() => { if (busy) return; blink = true; draw(); setTimeout(() => { blink = false; draw(); }, 130); }, 3200);
 
-  const answers = [
-    'ONROL turns AI curiosity into shipped work.',
-    'Build AI automations, agents & websites.',
-    '30 days · live · online · no coding needed.',
-    '2,400+ alumni. 10,000+ builders.',
-    'Made for 12 personas — incl. you.',
-    'Apply: info@onrol.in'
-  ];
-  let qi = -1, t;
-  face.addEventListener('click', () => {
+  const bot = document.getElementById('bot');
+  const askForm = document.getElementById('botAsk');
+  const input = document.getElementById('botInput');
+  let t;
+  function say(msg, ms) {
+    bubble.textContent = msg; bubble.classList.remove('is-hidden');
     busy = true; mouth = 'smile'; blink = false; draw();
-    qi = (qi + 1) % answers.length;
-    bubble.textContent = answers[qi];
-    bubble.classList.remove('is-hidden');
     clearTimeout(t);
-    t = setTimeout(() => { busy = false; mouth = 'smile'; draw(); bubble.classList.add('is-hidden'); }, 4200);
+    t = setTimeout(() => { busy = false; draw(); if (!bot.classList.contains('asking')) bubble.classList.add('is-hidden'); }, ms || 4500);
+  }
+
+  // click Vector -> open a question box
+  face.addEventListener('click', () => {
+    const open = !bot.classList.contains('asking');
+    bot.classList.toggle('asking', open);
+    if (open) { say('ask me anything ✦', 999999); if (input) input.focus(); }
+    else { bubble.classList.add('is-hidden'); }
+  });
+
+  // tiny knowledge base
+  const KB = [
+    [/(price|cost|fee|much|paid|free)/, 'Start free with the masterclass — email info@onrol.in for fees.'],
+    [/(long|duration|days|time|weeks|month)/, "It's 30 days — live & online."],
+    [/(cod|technical|program|develop)/, 'No coding needed to start.'],
+    [/agent/, "You'll build tool-using AI agents that reason & call APIs."],
+    [/(web|site|app)/, "You'll ship vibe-coded websites & apps."],
+    [/automat/, "You'll build AI automations for real operations."],
+    [/(who|persona|beginner|student|founder|for me)/, 'Built for 12 personas — students to founders.'],
+    [/(apply|join|enroll|start|register|sign)/, 'Apply at info@onrol.in or the Apply button.'],
+    [/(contact|email|phone|reach|whatsapp|call)/, 'info@onrol.in · 96093 12345'],
+    [/(hi|hello|hey|name|who are you)/, 'I am Vector — ask me about ONROL.']
+  ];
+  if (askForm) askForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const q = (input.value || '').toLowerCase().trim();
+    if (!q) return;
+    let ans = 'Try: pricing, duration, agents, websites, or apply…';
+    for (let i = 0; i < KB.length; i++) { if (KB[i][0].test(q)) { ans = KB[i][1]; break; } }
+    say(ans, 7000);
+    input.value = '';
   });
 
   // respond when you scroll to a new slide
   const slideMsgs = [
-    "Hi! I'm Vector, your ONROL guide.",
+    'I am Vector.',
     'Automations — AI runs the busywork.',
     'Agents that reason & act for you.',
     'Vibe-code & ship real sites.',
@@ -318,4 +388,64 @@
     });
   }, { threshold: 0.15 });
   items.forEach((el) => io.observe(el));
+})();
+
+/* ===== Click a slide to enter its detail view ===== */
+(function () {
+  const detail = document.getElementById('detail');
+  if (!detail) return;
+  const dEye = document.getElementById('dEye');
+  const dTitle = document.getElementById('dTitle');
+  const dLead = document.getElementById('dLead');
+  const dList = document.getElementById('dList');
+
+  const DATA = [
+    { eye: "India's AI Execution School", title: 'Shipped work', lead: 'A 30-day, live, online execution school where you build and deploy real AI — not just watch lectures.', bullets: ['Automations, agents & websites', 'Mentor-guided live projects', 'A portfolio that proves execution'] },
+    { eye: 'Track 01', title: 'AI Automations', lead: 'Automate the busywork so your day runs itself.', bullets: ['Lead routing & follow-ups', 'Research & summarization', 'Daily operations on autopilot'] },
+    { eye: 'Track 02', title: 'AI Agents', lead: 'Agents that reason, call tools and finish multi-step tasks.', bullets: ['Tool & API calling', 'Multi-step task completion', 'Guardrails & evaluation'] },
+    { eye: 'Track 03', title: 'Vibe-Coded Websites', lead: 'Ship polished, real products with AI-assisted coding.', bullets: ['AI-assisted coding', 'Deploy & iterate fast', 'Shippable apps and pages'] },
+    { eye: 'AI for everyone', title: 'Built for 12 personas', lead: 'A customized track for who you are and where you want to go.', bullets: ['Students & engineers', 'Founders & freelancers', 'Creators, SMB owners & more'] },
+    { eye: 'Rolling admissions', title: 'Join the next cohort', lead: '30 days · live · online · no coding needed.', bullets: ['Rolling admissions', '4.95/5 average rating', '2,400+ alumni · 10,000+ builders'] }
+  ];
+
+  function open(i) {
+    const d = DATA[i]; if (!d) return;
+    dEye.textContent = d.eye; dTitle.textContent = d.title; dLead.textContent = d.lead;
+    dList.innerHTML = '';
+    d.bullets.forEach((b) => { const li = document.createElement('li'); li.textContent = b; dList.appendChild(li); });
+    detail.classList.add('is-open'); detail.setAttribute('aria-hidden', 'false');
+  }
+  function close() { detail.classList.remove('is-open'); detail.setAttribute('aria-hidden', 'true'); }
+
+  // desktop: click the centred slide (only the facing one is clickable)
+  document.querySelectorAll('.wall').forEach((w, i) => {
+    w.addEventListener('click', (e) => { if (e.target.closest('a')) return; open(i); });
+  });
+  // mobile cards
+  document.querySelectorAll('.m-card[data-detail]').forEach((c) => {
+    c.addEventListener('click', (e) => { if (e.target.closest('a')) return; open(+c.dataset.detail); });
+  });
+
+  document.getElementById('detailClose').addEventListener('click', close);
+  detail.addEventListener('click', (e) => { if (e.target === detail) close(); });
+  window.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+})();
+
+/* ===== Light / dark theme toggle ===== */
+(function () {
+  const btn = document.getElementById('themeBtn');
+  if (!btn) return;
+  let light = false;
+  try { light = localStorage.getItem('onrol-theme') === 'light'; } catch (e) {}
+  function apply() {
+    document.body.classList.toggle('light', light);
+    btn.textContent = light ? '☾' : '☀';
+    btn.setAttribute('aria-label', light ? 'Switch to dark' : 'Switch to light');
+  }
+  btn.addEventListener('click', () => {
+    light = !light;
+    try { localStorage.setItem('onrol-theme', light ? 'light' : 'dark'); } catch (e) {}
+    apply();
+  });
+  apply();
 })();
