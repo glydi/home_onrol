@@ -132,7 +132,8 @@ if (typeof window.__useHall === 'undefined') {
 
   function frame() {
     const t = targetAngle();
-    angle += reduce ? (t - angle) : (t - angle) * 0.09;
+    const k = TOUCH ? (dragging ? 0.32 : 0.17) : 0.09;   // snappy while dragging, smooth on snap
+    angle += reduce ? (t - angle) : (t - angle) * k;
     if (Math.abs(t - angle) < 0.01) angle = t;
 
     // subtle "pull into the screen" between slides: ease back at mid-transition, forward on a slide
@@ -219,25 +220,32 @@ if (typeof window.__useHall === 'undefined') {
   //        loop only runs during/after a swipe. -----
   if (TOUCH) {
     let sx = 0, sy = 0, base = 0, decided = false, horiz = false;
-    const span = () => Math.max(1, window.innerWidth) * 0.62;   // px to swipe one slide
+    let lastX = 0, lastT = 0, vel = 0;                          // px/ms for flick detection
+    const span = () => Math.max(1, window.innerWidth) * 0.6;    // px to swipe one slide
+    const clampHp = (v) => Math.max(0, Math.min(C - 1, v));
     hall.addEventListener('touchstart', (e) => {
-      const t = e.touches[0]; sx = t.clientX; sy = t.clientY; base = hpTarget;
-      decided = false; horiz = false; dragging = true;
+      const t = e.touches[0]; sx = lastX = t.clientX; sy = t.clientY; base = Math.round(hpTarget);
+      lastT = e.timeStamp; vel = 0; decided = false; horiz = false; dragging = true;
     }, { passive: true });
     hall.addEventListener('touchmove', (e) => {
       if (!dragging) return;
       const t = e.touches[0], dx = t.clientX - sx, dy = t.clientY - sy;
       if (!decided && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) { decided = true; horiz = Math.abs(dx) > Math.abs(dy); }
       if (decided && horiz) {
-        e.preventDefault();                                  // we own horizontal -> rotate
-        hpTarget = Math.max(0, Math.min(C - 1, base - dx / span()));
+        e.preventDefault();                                    // we own horizontal -> rotate 1:1 with finger
+        const dt = e.timeStamp - lastT || 16;
+        vel = (t.clientX - lastX) / dt; lastX = t.clientX; lastT = e.timeStamp;
+        hpTarget = clampHp(base - dx / span());
         wake();
       }
       // vertical gestures are left alone -> native scroll into the sections below
     }, { passive: false });
     function endTouch() {
       if (!dragging) return; dragging = false;
-      if (decided && horiz) { hpTarget = Math.max(0, Math.min(C - 1, Math.round(hpTarget))); wake(); }   // snap
+      if (!decided || !horiz) return;
+      // quick flick advances one slide; otherwise snap to the nearest
+      const snap = Math.abs(vel) > 0.3 ? base + (vel < 0 ? 1 : -1) : Math.round(hpTarget);
+      hpTarget = clampHp(snap); wake();
     }
     hall.addEventListener('touchend', endTouch);
     hall.addEventListener('touchcancel', endTouch);
