@@ -526,11 +526,13 @@ body.low-fx .tap-hint::before, body.low-fx .tap-hint__ring { animation: none; }
 @media (max-width: 767px) {
   .m-card {
     background:
-      /* orange glow behind the headline (top-left) */
-      radial-gradient(78% 42% at 26% 22%, rgba(255,133,31,.34), rgba(255,120,40,.12) 42%, transparent 66%),
-      /* soft ambient + warm floor */
-      radial-gradient(120% 60% at 70% 8%, rgba(255,150,82,.12), transparent 60%),
-      radial-gradient(130% 60% at 50% 116%, rgba(255,140,60,.12), transparent 72%);
+      /* glow: peach hot centre -> orange -> dark orange, behind the headline */
+      radial-gradient(92% 52% at 28% 20%,
+        rgba(255,214,182,.42) 0%, rgba(255,140,52,.28) 30%, rgba(168,62,12,.20) 56%, transparent 76%),
+      /* deep dark-orange floor glow */
+      radial-gradient(130% 70% at 62% 116%, rgba(150,52,8,.26), transparent 72%),
+      /* faint peach sheen */
+      linear-gradient(158deg, rgba(255,214,182,.07), transparent 42%);
   }
   .m-card .eyebrow {
     font-size: 12px; letter-spacing: 3.5px; color: var(--gold);
