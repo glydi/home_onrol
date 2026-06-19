@@ -551,6 +551,16 @@ body.touch .spark { box-shadow: none; }
 body.touch .vignette { will-change: auto; }
 body.touch .settings__row--desktop { display: none; }   /* scroll-speed N/A on swipe hall */
 
+/* phones: a simple CSS light instead of the glow image — similar warm look,
+   nothing to download, cheaper to render (the image is kept for iPad/desktop) */
+@media (max-width: 767px) {
+  .hall::before {
+    background:
+      radial-gradient(56% 48% at 50% 32%, rgba(255,162,96,.15), transparent 70%),
+      radial-gradient(82% 72% at 50% 42%, rgba(255,126,40,.10), transparent 80%);
+  }
+}
+
 /* cubes / 3D objects removed — keep the turning hall, drop the decorations */
 .obj { display: none !important; }
 
