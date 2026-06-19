@@ -2,9 +2,8 @@
    (so the class is applied before paint). Fall back here just in case. */
 if (typeof window.__useHall === 'undefined') {
   const mq = (q) => !!(window.matchMedia && window.matchMedia(q).matches);
-  const lowEnd = mq('(prefers-reduced-motion: reduce)') || (navigator.deviceMemory || 8) <= 4 || (navigator.hardwareConcurrency || 8) <= 4;
   window.__useHall = true;                       // hall runs on all devices (responsive)
-  window.__lowFx = lowEnd || mq('(pointer: coarse)');
+  window.__lowFx = mq('(prefers-reduced-motion: reduce)') || mq('(pointer: coarse)') || (navigator.hardwareConcurrency || 8) <= 2;
   if (window.__lowFx) document.body.classList.add('low-fx');
 }
 

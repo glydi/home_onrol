@@ -29,15 +29,16 @@
       var mq = function (q) { return !!(window.matchMedia && window.matchMedia(q).matches); };
       var reduce = mq('(prefers-reduced-motion: reduce)');
       var touch = mq('(pointer: coarse)');
-      var narrow = mq('(max-width: 1024px)');
-      var mem = navigator.deviceMemory || 8;
+      // low-fx ONLY for phones/tablets (touch), reduced-motion, or genuinely weak
+      // CPUs. Deliberately NOT using deviceMemory (Chromium-only -> made the same
+      // Mac differ between Chrome and Safari) or a 4-core cutoff (flagged normal
+      // laptops) so desktops render the SAME everywhere.
       var cores = navigator.hardwareConcurrency || 8;
-      var lowEnd = reduce || mem <= 4 || cores <= 4;
-      // the 3D hall now runs on every device (responsive); low-fx still trims graphics
+      var lowFx = reduce || touch || cores <= 2;
       var c = document.body.classList;
-      if (lowEnd || touch) c.add('low-fx');
+      if (lowFx) c.add('low-fx');
       window.__useHall = true;
-      window.__lowFx = lowEnd || touch;
+      window.__lowFx = lowFx;
     })();
   </script>
 
