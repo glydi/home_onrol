@@ -643,8 +643,8 @@ if (typeof window.__useHall === 'undefined') {
 (function () {
   const btn = document.getElementById('themeBtn');
   if (!btn) return;
-  let light = false;
-  try { light = localStorage.getItem('onrol-theme') === 'light'; } catch (e) {}
+  // the inline script already resolved theme (saved choice or system preference)
+  let light = document.body.classList.contains('light');
   function apply() {
     document.body.classList.toggle('light', light);
     btn.textContent = light ? '☾' : '☀';

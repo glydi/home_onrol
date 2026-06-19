@@ -13,6 +13,51 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ONROL — India's AI Execution School</title>
   <meta name="description" content="ONROL turns AI curiosity into shipped work — useful automations, deployable web apps, AI agents, and a portfolio that proves execution." />
+
+  <!-- ===== SEO / meta ===== -->
+  <link rel="canonical" href="https://glydi.github.io/home_onrol/" />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#0c0a09" media="(prefers-color-scheme: dark)" />
+  <meta name="theme-color" content="#f4eee3" media="(prefers-color-scheme: light)" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="ONROL" />
+  <meta property="og:title" content="ONROL — India's AI Execution School" />
+  <meta property="og:description" content="Turn AI curiosity into shipped work — automations, AI agents, vibe-coded websites, and a portfolio that proves execution. 30 days, live & online." />
+  <meta property="og:url" content="https://glydi.github.io/home_onrol/" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ONROL — India's AI Execution School" />
+  <meta name="twitter:description" content="Turn AI curiosity into shipped work — 30 days, live & online." />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "EducationalOrganization",
+    "name": "ONROL",
+    "alternateName": "ONROL — India's AI Execution School",
+    "url": "https://glydi.github.io/home_onrol/",
+    "description": "A 30-day live, online execution school where you build and deploy real AI — automations, agents and vibe-coded websites.",
+    "email": "info@onrol.in",
+    "telephone": "+91-96093-12345",
+    "sameAs": [
+      "https://www.linkedin.com/company/onrol",
+      "https://www.instagram.com/onrol.in",
+      "https://www.youtube.com/@onrol"
+    ]
+  }
+  </script>
+
+  <!-- ===== Analytics (GA4) — set your Measurement ID below to enable ===== -->
+  <script>
+    window.GA_ID = '';   /* <-- paste your GA4 ID here, e.g. 'G-XXXXXXXXXX' */
+    if (window.GA_ID) {
+      var ga = document.createElement('script'); ga.async = true;
+      ga.src = 'https://www.googletagmanager.com/gtag/js?id=' + window.GA_ID;
+      document.head.appendChild(ga);
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ dataLayer.push(arguments); } window.gtag = gtag;
+      gtag('js', new Date()); gtag('config', window.GA_ID);
+    }
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
@@ -45,6 +90,12 @@
       window.__useHall = useHall;
       window.__lowFx = lowFx;
       window.__touch = touch;
+      // theme: saved choice wins, else follow the visitor's system light/dark
+      try {
+        var st = localStorage.getItem('onrol-theme');
+        var lightTheme = st ? st === 'light' : (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches);
+        if (lightTheme) c.add('light');
+      } catch (e) {}
     })();
   </script>
 
