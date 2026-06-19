@@ -541,10 +541,10 @@ body.low-fx .tap-hint::before, body.low-fx .tap-hint__ring { animation: none; }
   .m-card { background: var(--bg); overflow: hidden; }
   /* random + moving peach -> dark-orange glow (position/timing set per card in JS) */
   .m-card::before {
-    content: ""; position: absolute; inset: -35%; z-index: 0; pointer-events: none;
-    background: radial-gradient(48% 42% at var(--gcx, 30%) var(--gcy, 28%),
-      rgba(255,214,182,.44) 0%, rgba(255,140,52,.30) 30%, rgba(160,58,10,.22) 56%, transparent 78%);
-    animation: glowDrift var(--gdur, 15s) ease-in-out var(--gdelay, 0s) infinite alternate;
+    content: ""; position: absolute; inset: -60%; z-index: 0; pointer-events: none;
+    background: radial-gradient(40% 36% at var(--gcx, 30%) var(--gcy, 28%),
+      rgba(255,214,182,.46) 0%, rgba(255,140,52,.32) 30%, rgba(160,58,10,.22) 56%, transparent 78%);
+    animation: glowDrift var(--gdur, 16s) ease-in-out var(--gdelay, 0s) infinite;
     will-change: transform;
   }
   .m-card > * { position: relative; z-index: 1; }   /* content above the glow */
@@ -572,10 +572,13 @@ body.low-fx .tap-hint::before, body.low-fx .tap-hint__ring { animation: none; }
   }
   body.light .m-card .desc { color: rgba(40,26,12,.72); }
 }
+/* glow roams a full loop around the card (not stuck in one place) */
 @keyframes glowDrift {
-  0%   { transform: translate(-5%, -4%) scale(1); }
-  50%  { transform: translate(5%, 3%) scale(1.14); }
-  100% { transform: translate(8%, -3%) scale(1.06); }
+  0%   { transform: translate(-26%, -20%) scale(1.05); }
+  25%  { transform: translate(22%, -14%) scale(1.18); }
+  50%  { transform: translate(26%, 20%) scale(1.08); }
+  75%  { transform: translate(-20%, 22%) scale(1.16); }
+  100% { transform: translate(-26%, -20%) scale(1.05); }
 }
 
 @media (prefers-reduced-motion: reduce) {
