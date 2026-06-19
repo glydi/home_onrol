@@ -2,8 +2,10 @@
    (so the class is applied before paint). Fall back here just in case. */
 if (typeof window.__useHall === 'undefined') {
   const mq = (q) => !!(window.matchMedia && window.matchMedia(q).matches);
-  window.__useHall = true;                       // hall runs on all devices (responsive)
-  window.__lowFx = mq('(prefers-reduced-motion: reduce)') || mq('(pointer: coarse)') || (navigator.hardwareConcurrency || 8) <= 2;
+  const touch = mq('(pointer: coarse)');
+  window.__useHall = !touch && !mq('(max-width: 1024px)');   // hall = desktop/mouse only
+  window.__lowFx = mq('(prefers-reduced-motion: reduce)') || touch || (navigator.hardwareConcurrency || 8) <= 2;
+  if (!window.__useHall) document.body.classList.add('no-hall');
   if (window.__lowFx) document.body.classList.add('low-fx');
 }
 

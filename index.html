@@ -33,11 +33,16 @@
       // CPUs. Deliberately NOT using deviceMemory (Chromium-only -> made the same
       // Mac differ between Chrome and Safari) or a 4-core cutoff (flagged normal
       // laptops) so desktops render the SAME everywhere.
+      var narrow = mq('(max-width: 1024px)');
       var cores = navigator.hardwareConcurrency || 8;
       var lowFx = reduce || touch || cores <= 2;
+      // the pinned 3D hall scrolls badly under touch (esp. iPad/iOS) -> touch and
+      // small screens get the smooth vertical slides; desktop (mouse) gets the hall
+      var useHall = !touch && !narrow;
       var c = document.body.classList;
+      if (!useHall) c.add('no-hall');
       if (lowFx) c.add('low-fx');
-      window.__useHall = true;
+      window.__useHall = useHall;
       window.__lowFx = lowFx;
     })();
   </script>

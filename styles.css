@@ -531,10 +531,14 @@ body.low-fx .tap-hint::before, body.low-fx .tap-hint__ring { animation: none; }
   .spark { animation: none; }
 }
 
-/* the 3D hall now runs on every device (responsive); the .m-slides vertical
-   fallback only shows when JS is unavailable */
-.no-js .pin-wrap, .no-js .intro { display: none; }
-.no-js .m-slides { display: block; }
+/* Touch devices (iPad/phones) and no-JS use the smooth vertical slides — the
+   pinned 3D hall scrolls badly under iOS touch. Desktop (mouse) keeps the hall. */
+.no-js .pin-wrap, .no-js .intro,
+body.no-hall .pin-wrap, body.no-hall .coords, body.no-hall .cur-dot { display: none !important; }
+.no-js .m-slides, body.no-hall .m-slides { display: block; }
+body.no-hall .hdr { position: sticky; top: 0; background: rgba(12,10,9,.85); backdrop-filter: blur(8px); }
+body.no-hall.low-fx .hdr { backdrop-filter: none; }
+body.light.no-hall .hdr { background: rgba(255,247,238,.85); }
 
 /* cubes / 3D objects removed — keep the turning hall, drop the decorations */
 .obj { display: none !important; }
