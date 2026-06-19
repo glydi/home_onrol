@@ -33,17 +33,14 @@
       // CPUs. Deliberately NOT using deviceMemory (Chromium-only -> made the same
       // Mac differ between Chrome and Safari) or a 4-core cutoff (flagged normal
       // laptops) so desktops render the SAME everywhere.
-      var phone = mq('(max-width: 767px)');
       var cores = navigator.hardwareConcurrency || 8;
       var lowFx = reduce || touch || cores <= 2;
-      // hall on desktop + tablets (incl. iPad); only phones use vertical slides.
-      // 'touch' triggers iOS-friendly trims so the hall stays smooth on iPad.
-      var useHall = !phone;
+      // 3D hall on every device — phone, iPad and desktop. 'touch' triggers the
+      // iOS-friendly trims (no grain, fewer sparkles, no drag) so it stays smooth.
       var c = document.body.classList;
-      if (!useHall) c.add('no-hall');
       if (lowFx) c.add('low-fx');
       if (touch) c.add('touch');
-      window.__useHall = useHall;
+      window.__useHall = true;
       window.__lowFx = lowFx;
       window.__touch = touch;
     })();
