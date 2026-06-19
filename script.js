@@ -3,10 +3,12 @@
 if (typeof window.__useHall === 'undefined') {
   const mq = (q) => !!(window.matchMedia && window.matchMedia(q).matches);
   const touch = mq('(pointer: coarse)');
-  window.__useHall = !touch && !mq('(max-width: 1024px)');   // hall = desktop/mouse only
+  window.__useHall = !mq('(max-width: 767px)');   // hall on desktop + tablets; phones -> vertical
   window.__lowFx = mq('(prefers-reduced-motion: reduce)') || touch || (navigator.hardwareConcurrency || 8) <= 2;
+  window.__touch = touch;
   if (!window.__useHall) document.body.classList.add('no-hall');
   if (window.__lowFx) document.body.classList.add('low-fx');
+  if (touch) document.body.classList.add('touch');
 }
 
 /* =========================================================
@@ -42,7 +44,7 @@ if (typeof window.__useHall === 'undefined') {
 
   // depth sparkle field — tiny glints at varied depths; they rotate with the
   // ring, so scrolling sweeps them past (parallax depth) + they twinkle
-  const SP = window.__lowFx ? 24 : 70;   // depth glints — fewer = lighter on every device
+  const SP = window.__touch ? 14 : (window.__lowFx ? 24 : 70);   // far fewer on touch (iOS overdraw)
   for (let i = 0; i < SP; i++) {
     const s = document.createElement('div');
     s.className = 'spark';
@@ -178,28 +180,31 @@ if (typeof window.__useHall === 'undefined') {
   }
   navLinks.forEach((l) => l.addEventListener('click', (e) => { e.preventDefault(); goSlide(+l.dataset.wall); }));
 
-  // ----- drag-to-spin with inertia (maps horizontal drag to the scroll-turn) -----
-  let dn = false, lx = 0, sx = 0, dv = 0, inertia = 0;
-  const dragK = () => (metrics().range / C) / 320;       // px dragged -> scroll
-  hall.addEventListener('pointerdown', (e) => { dn = true; lx = sx = e.clientX; dv = 0; window.__hallDragged = false; cancelAnimationFrame(inertia); });
-  hall.addEventListener('pointermove', (e) => {
-    if (!dn) return;
-    const dx = e.clientX - lx; lx = e.clientX; dv = dx;
-    if (Math.abs(e.clientX - sx) > 6) window.__hallDragged = true;
-    window.scrollBy(0, -dx * dragK());
-  });
-  function release() {
-    if (!dn) return; dn = false;
-    let v = dv;
-    (function glide() {
-      if (Math.abs(v) < 0.4) return;
-      window.scrollBy(0, -v * dragK());
-      v *= 0.92;
-      inertia = requestAnimationFrame(glide);
-    })();
+  // ----- drag-to-spin with inertia (mouse only — on touch it fights native
+  //        momentum scroll and causes the iPad jank, so let iOS drive it) -----
+  if (!window.__touch) {
+    let dn = false, lx = 0, sx = 0, dv = 0, inertia = 0;
+    const dragK = () => (metrics().range / C) / 320;       // px dragged -> scroll
+    hall.addEventListener('pointerdown', (e) => { dn = true; lx = sx = e.clientX; dv = 0; window.__hallDragged = false; cancelAnimationFrame(inertia); });
+    hall.addEventListener('pointermove', (e) => {
+      if (!dn) return;
+      const dx = e.clientX - lx; lx = e.clientX; dv = dx;
+      if (Math.abs(e.clientX - sx) > 6) window.__hallDragged = true;
+      window.scrollBy(0, -dx * dragK());
+    });
+    function release() {
+      if (!dn) return; dn = false;
+      let v = dv;
+      (function glide() {
+        if (Math.abs(v) < 0.4) return;
+        window.scrollBy(0, -v * dragK());
+        v *= 0.92;
+        inertia = requestAnimationFrame(glide);
+      })();
+    }
+    hall.addEventListener('pointerup', release);
+    hall.addEventListener('pointercancel', release);
   }
-  hall.addEventListener('pointerup', release);
-  hall.addEventListener('pointercancel', release);
 
   // ----- keyboard: 1–6 jump · Enter opens detail · / focuses Vector -----
   window.addEventListener('keydown', (e) => {

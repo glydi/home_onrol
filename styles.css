@@ -540,6 +540,13 @@ body.no-hall .hdr { position: sticky; top: 0; background: rgba(12,10,9,.85); bac
 body.no-hall.low-fx .hdr { backdrop-filter: none; }
 body.light.no-hall .hdr { background: rgba(255,247,238,.85); }
 
+/* touch (iPad/tablets): trim the costliest repaints so the 3D hall stays smooth.
+   mix-blend grain + heavy shadows are the worst offenders during iOS scroll. */
+body.touch .hall::after { display: none; }
+body.touch .pin-wrap { height: 760vh; }     /* a bit less pinned scroll to chew */
+body.touch .spark { box-shadow: none; }
+body.touch .vignette { will-change: auto; }
+
 /* cubes / 3D objects removed — keep the turning hall, drop the decorations */
 .obj { display: none !important; }
 
