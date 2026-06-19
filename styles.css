@@ -512,34 +512,35 @@ body.low-fx .tap-hint::before, body.low-fx .tap-hint__ring { animation: none; }
 .m-card .desc { font-size: 16px; color: var(--muted); max-width: 440px; }
 .m-card .link { color: var(--gold); }
 
-/* swipe-down flash cards: one full screen per card, snap one at a time */
-html.snap { scroll-snap-type: y proximity; }
-.snap .m-card { scroll-snap-align: start; scroll-snap-stop: always; min-height: 100vh; }
+/* reels-style: full screen per card, mandatory snap + stop = one card per swipe
+   (JS turns the snap off once you scroll past the cards, so sections scroll free) */
+html.snap { scroll-snap-type: y mandatory; }
+.snap .m-card { scroll-snap-align: start; scroll-snap-stop: always; min-height: 100vh; min-height: 100svh; }
 
 /* ---- phone: distinct, looks-first card style (portrait) ---- */
 @media (max-width: 767px) {
   .m-slides { padding: 0; }
   .m-card {
-    justify-content: flex-end; gap: 16px; padding: 0 26px 16vh; border-bottom: none;
+    min-height: 100svh; justify-content: flex-end; gap: 18px; padding: 0 28px 18vh; border-bottom: none;
     background:
-      radial-gradient(120% 60% at 50% 8%, rgba(255,128,38,.14), transparent 60%),
-      radial-gradient(140% 80% at 50% 120%, rgba(255,150,82,.10), transparent 70%);
+      radial-gradient(130% 56% at 50% 0%, rgba(255,128,38,.16), transparent 58%),
+      radial-gradient(150% 80% at 50% 124%, rgba(255,150,82,.12), transparent 72%);
   }
-  .m-card::before {                       /* card index, e.g. 01 / 06 */
-    content: counter(card, decimal-leading-zero) " / 06";
-    position: absolute; top: 14vh; left: 26px;
-    font-family: var(--alt); font-size: 12px; letter-spacing: 3px; color: var(--gold);
+  .m-card .eyebrow {
+    font-size: 12px; letter-spacing: 3.5px; color: var(--gold);
+    display: inline-flex; align-items: center; gap: 10px;
   }
-  .m-card::after {                        /* thin accent rule under the index */
-    content: ""; position: absolute; top: calc(14vh + 26px); left: 26px;
-    width: 38px; height: 2px; background: linear-gradient(90deg, var(--gold), transparent);
+  .m-card .eyebrow::before { content: ""; width: 26px; height: 1px; background: var(--gold); display: inline-block; }
+  .m-card .display {
+    font-size: clamp(46px, 15vw, 76px); line-height: .96; letter-spacing: -2px; font-weight: 700;
+    text-shadow: 0 6px 30px rgba(255,128,38,.18);
   }
-  .m-card .eyebrow { font-size: 12px; }
-  .m-card .display { font-size: clamp(40px, 13vw, 66px); letter-spacing: -1px; }
-  .m-card .desc { font-size: 16px; line-height: 1.6; }
+  .m-card .display em { color: var(--gold); font-style: normal; }
+  .m-card .desc { font-size: 16.5px; line-height: 1.66; color: rgba(255,232,218,.74); max-width: 32ch; }
   .m-card .link, .m-card .btn {
-    align-self: flex-start; margin-top: 6px;
-    padding: 11px 20px; border: 1px solid var(--gold); border-radius: 999px; color: var(--gold);
+    align-self: flex-start; margin-top: 8px; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase;
+    padding: 12px 22px; border: 1px solid var(--gold); border-radius: 999px; color: var(--gold);
+    background: rgba(255,133,31,.06);
   }
 }
 

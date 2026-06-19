@@ -834,3 +834,22 @@ if (typeof window.__useHall === 'undefined') {
   }
   setTimeout(run, 2300);   // after the intro clears
 })();
+
+/* ===== Flash-card reels: mandatory snap WHILE in the cards, free scroll after
+   (so the lower sections aren't trapped by the card snap points) ===== */
+(function () {
+  if (!document.documentElement.classList.contains('snap')) return;
+  const slides = document.querySelector('.m-slides');
+  if (!slides) return;
+  const root = document.documentElement;
+  let snapped = null, ticking = false;
+  function update() {
+    ticking = false;
+    const end = slides.offsetTop + slides.offsetHeight - window.innerHeight * 0.6;
+    const within = window.scrollY < end;
+    if (within !== snapped) { snapped = within; root.style.scrollSnapType = within ? 'y mandatory' : 'none'; }
+  }
+  window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+  window.addEventListener('resize', update, { passive: true });
+  update();
+})();
