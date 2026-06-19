@@ -43,7 +43,7 @@ if (typeof window.__useHall === 'undefined') {
 
   // depth sparkle field — tiny glints at varied depths; they rotate with the
   // ring, so scrolling sweeps them past (parallax depth) + they twinkle
-  const SP = window.__touch ? 14 : (window.__lowFx ? 24 : 70);   // far fewer on touch (iOS overdraw)
+  const SP = window.__touch ? 0 : (window.__lowFx ? 24 : 70);   // no sparkles on touch (iPad/phone) — lighter
   for (let i = 0; i < SP; i++) {
     const s = document.createElement('div');
     s.className = 'spark';
