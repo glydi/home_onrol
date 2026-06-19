@@ -79,7 +79,8 @@ if (typeof window.__useHall === 'undefined') {
     if (ceiling) ceiling.style.transform = 'translateZ(' + ringZ + 'px) translateY(' + (-wallH / 2) + 'px) rotateX(90deg)';
   }
 
-  let angle = 0, lastFacing = -1;
+  let angle = 0, lastFacing = -1, hpTarget = 0, running = false;
+  const TOUCH = !!window.__touch;
   const shortest = (d) => ((d % 360) + 540) % 360 - 180;
   const zOf = (rel, r) => ringZ - r * Math.cos(rel * Math.PI / 180);
 
@@ -118,6 +119,7 @@ if (typeof window.__useHall === 'undefined') {
   }
   const HOLD = 0.3;    // brief hold, then a SMOOTH turn; scroll-idle snaps to a slide
   function targetAngle() {
+    if (TOUCH) return Math.max(0, Math.min(C - 1, hpTarget)) * SEG;   // gesture-driven, no scroll
     const m = metrics();
     const p = Math.min(1, Math.max(0, (window.scrollY - m.top) / m.range));
     const raw = p * C;                  // 0..C
@@ -159,11 +161,17 @@ if (typeof window.__useHall === 'undefined') {
       document.dispatchEvent(new CustomEvent('onrol:slide', { detail: facing }));
     }
 
+    // touch: stop the loop once settled (efficient — no idle rAF); a swipe wakes it.
+    // desktop: keep running so it tracks scroll continuously.
+    if (TOUCH && Math.abs(t - angle) < 0.0005 && !dragging) { running = false; return; }
     requestAnimationFrame(frame);
   }
+  function wake() { if (!running) { running = true; requestAnimationFrame(frame); } }
+  let dragging = false;
 
   // ----- step controls -----
   function stepBy(dir) {
+    if (TOUCH) { hpTarget = Math.max(0, Math.min(C - 1, Math.round(hpTarget) + dir)); wake(); return; }
     const m = metrics();
     window.scrollBy({ top: dir * (m.range / C), behavior: 'smooth' });
   }
@@ -174,6 +182,7 @@ if (typeof window.__useHall === 'undefined') {
     else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') stepBy(-1);
   });
   function goSlide(i) {
+    if (TOUCH) { hpTarget = Math.max(0, Math.min(C - 1, i)); wake(); return; }
     const m = metrics();
     window.scrollTo({ top: m.top + (Math.max(0, Math.min(C - 1, i)) / C) * m.range, behavior: 'smooth' });
   }
@@ -205,6 +214,35 @@ if (typeof window.__useHall === 'undefined') {
     hall.addEventListener('pointercancel', release);
   }
 
+  // ----- touch: swipe-driven hall (page stays fixed; horizontal swipe rotates,
+  //        vertical scroll falls through to the sections). Efficient: the render
+  //        loop only runs during/after a swipe. -----
+  if (TOUCH) {
+    let sx = 0, sy = 0, base = 0, decided = false, horiz = false;
+    const span = () => Math.max(1, window.innerWidth) * 0.62;   // px to swipe one slide
+    hall.addEventListener('touchstart', (e) => {
+      const t = e.touches[0]; sx = t.clientX; sy = t.clientY; base = hpTarget;
+      decided = false; horiz = false; dragging = true;
+    }, { passive: true });
+    hall.addEventListener('touchmove', (e) => {
+      if (!dragging) return;
+      const t = e.touches[0], dx = t.clientX - sx, dy = t.clientY - sy;
+      if (!decided && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) { decided = true; horiz = Math.abs(dx) > Math.abs(dy); }
+      if (decided && horiz) {
+        e.preventDefault();                                  // we own horizontal -> rotate
+        hpTarget = Math.max(0, Math.min(C - 1, base - dx / span()));
+        wake();
+      }
+      // vertical gestures are left alone -> native scroll into the sections below
+    }, { passive: false });
+    function endTouch() {
+      if (!dragging) return; dragging = false;
+      if (decided && horiz) { hpTarget = Math.max(0, Math.min(C - 1, Math.round(hpTarget))); wake(); }   // snap
+    }
+    hall.addEventListener('touchend', endTouch);
+    hall.addEventListener('touchcancel', endTouch);
+  }
+
   // ----- keyboard: 1–6 jump · Enter opens detail · / focuses Vector -----
   window.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT') return;
@@ -227,6 +265,7 @@ if (typeof window.__useHall === 'undefined') {
   pts.push(1);                                  // 1 = unpinned, into the sections below
   let snapT;
   window.addEventListener('scroll', () => {
+    if (TOUCH) return;                                   // touch hall isn't scroll-driven
     clearTimeout(snapT);
     snapT = setTimeout(() => {
       const m = metrics();
@@ -246,6 +285,7 @@ if (typeof window.__useHall === 'undefined') {
   const sensRange = document.getElementById('sensRange');
   const sensVal = document.getElementById('sensVal');
   function applySens(mult, keepPos) {
+    if (TOUCH) return;                                      // touch hall is swipe-driven; pin stays 100vh
     mult = Math.max(SENS_MIN, Math.min(SENS_MAX, mult));
     const m0 = keepPos ? metrics() : null;                 // preserve position within the hall
     const p = m0 ? (window.scrollY - m0.top) / m0.range : 0;
@@ -276,9 +316,9 @@ if (typeof window.__useHall === 'undefined') {
   angle = 0;
 
   geometry();
-  window.addEventListener('resize', geometry);
-  window.addEventListener('load', () => { geometry(); fromHash(); });
-  frame();
+  window.addEventListener('resize', () => { geometry(); if (TOUCH) wake(); });
+  window.addEventListener('load', () => { geometry(); fromHash(); if (TOUCH) wake(); });
+  if (TOUCH) wake(); else frame();
 })();
 
 /* ===== Static bloom + cheap cursor parallax =====

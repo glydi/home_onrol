@@ -543,9 +543,13 @@ body.light.no-hall .hdr { background: rgba(255,247,238,.85); }
 /* touch (iPad/tablets): trim the costliest repaints so the 3D hall stays smooth.
    mix-blend grain + heavy shadows are the worst offenders during iOS scroll. */
 body.touch .hall::after { display: none; }
-body.touch .pin-wrap { height: 760vh; }     /* a bit less pinned scroll to chew */
+/* swipe-driven hall: no tall pinned scroll — the hall is a fixed 100vh stage,
+   horizontal swipes rotate it (JS), vertical scroll falls through to sections */
+body.touch .pin-wrap { height: 100vh; }
+body.touch .hall { position: relative; touch-action: pan-y; }
 body.touch .spark { box-shadow: none; }
 body.touch .vignette { will-change: auto; }
+body.touch .settings__row--desktop { display: none; }   /* scroll-speed N/A on swipe hall */
 
 /* cubes / 3D objects removed — keep the turning hall, drop the decorations */
 .obj { display: none !important; }
