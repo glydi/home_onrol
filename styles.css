@@ -542,9 +542,9 @@ body.low-fx .tap-hint::before, body.low-fx .tap-hint__ring { animation: none; }
   /* random + moving peach -> dark-orange glow (position/timing set per card in JS) */
   .m-card::before {
     content: ""; position: absolute; inset: -60%; z-index: 0; pointer-events: none;
-    background: radial-gradient(40% 36% at var(--gcx, 30%) var(--gcy, 28%),
-      rgba(255,214,182,.46) 0%, rgba(255,140,52,.32) 30%, rgba(160,58,10,.22) 56%, transparent 78%);
-    animation: glowDrift var(--gdur, 16s) ease-in-out var(--gdelay, 0s) infinite;
+    background: radial-gradient(38% 34% at var(--gcx, 30%) var(--gcy, 28%),
+      rgba(255,206,158,.72) 0%, rgba(255,138,40,.52) 26%, rgba(224,84,18,.36) 50%, rgba(150,46,8,.18) 68%, transparent 80%);
+    animation: glowDrift var(--gdur, 10s) ease-in-out var(--gdelay, 0s) infinite;
     will-change: transform;
   }
   .m-card > * { position: relative; z-index: 1; }   /* content above the glow */

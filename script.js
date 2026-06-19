@@ -882,7 +882,7 @@ if (typeof window.__useHall === 'undefined') {
   cards.forEach((c) => {
     c.style.setProperty('--gcx', (16 + Math.random() * 56).toFixed(0) + '%');
     c.style.setProperty('--gcy', (14 + Math.random() * 46).toFixed(0) + '%');
-    c.style.setProperty('--gdur', (12 + Math.random() * 8).toFixed(0) + 's');
-    c.style.setProperty('--gdelay', (-Math.random() * 10).toFixed(1) + 's');
+    c.style.setProperty('--gdur', (7 + Math.random() * 4).toFixed(1) + 's');   // faster = movement is visible
+    c.style.setProperty('--gdelay', (-Math.random() * 8).toFixed(1) + 's');
   });
 })();
