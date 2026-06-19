@@ -61,12 +61,6 @@ if (typeof window.__useHall === 'undefined') {
     ring.appendChild(s);
   }
 
-  // progress arc
-  const arcFill = document.getElementById('progressFill');
-  const arcNum = document.getElementById('progressNum');
-  const CIRC = 2 * Math.PI * 46;
-  if (arcFill) { arcFill.style.strokeDasharray = CIRC; arcFill.style.strokeDashoffset = CIRC; }
-
   let Rc = 360, Rseg = 400, wallH = 600, ringZ = 0;
   function geometry() {
     wallH = walls[0].offsetHeight || 600;
@@ -150,11 +144,6 @@ if (typeof window.__useHall === 'undefined') {
       const f = shadeWall(walls[k], shortest(angle - k * SEG));
       walls[k].style.pointerEvents = f > 0.9 ? 'auto' : 'none';
     }
-    if (arcFill) {
-      const prog = Math.max(0, Math.min(1, (angle / SEG) / (C - 1)));
-      arcFill.style.strokeDashoffset = CIRC * (1 - prog);
-    }
-    if (arcNum) arcNum.textContent = String(facing + 1);
     navLinks.forEach((l) => l.classList.toggle('is-active', +l.dataset.wall === facing));
 
     // tell the bot which slide we're on (it reacts when you scroll to a new one)
