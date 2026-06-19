@@ -30,7 +30,7 @@ em { font-style: normal; color: var(--gold); }
 
 /* Geist (premium alternative) for small UI labels */
 .eyebrow, .hdr__link, .cue, .link, .btn,
-.chapters, .scroll-cue, .foot__links a, .ware span {
+.foot__links a, .ware span {
   font-family: var(--alt);
 }
 
@@ -303,17 +303,6 @@ body.orange-cursor, body.orange-cursor * { cursor: none !important; }
 .nav-arrow--prev { left: 22px; } .nav-arrow--prev:hover { transform: translateY(-50%) translateX(-3px); }
 .nav-arrow--next { right: 22px; } .nav-arrow--next:hover { transform: translateY(-50%) translateX(3px); }
 
-.chapters { position: absolute; left: 50%; bottom: 70px; transform: translateX(-50%); z-index: 70;
-  display: flex; align-items: center; gap: 16px; font-family: var(--display); font-size: 17px; letter-spacing: 1px; color: var(--muted); }
-.chapters__count { color: var(--ink); }
-.chapters__bar { width: 160px; height: 1px; background: var(--line); position: relative; }
-.chapters__fill { position: absolute; left: 0; top: 0; height: 100%; width: 16%; background: var(--gold); transition: width .6s cubic-bezier(.16,1,.3,1); }
-
-.scroll-cue {
-  position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%); z-index: 70;
-  font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted);
-  display: inline-flex; align-items: center; gap: 8px;
-}
 
 /* ===== Pixel bot ===== */
 .bot {
@@ -512,15 +501,47 @@ body.low-fx .tap-hint::before, body.low-fx .tap-hint__ring { animation: none; }
 .bot__input:focus { border-color: var(--gold); }
 .bot__input::placeholder { color: rgba(255,232,218,.4); }
 
-/* ===== Vertical slides (no-JS fallback only) ===== */
-.m-slides { display: none; }
+/* ===== Vertical flash-card deck (touch + no-JS) ===== */
+.m-slides { display: none; counter-reset: card; }
 .m-card {
+  position: relative; counter-increment: card;
   min-height: 86vh; display: flex; flex-direction: column; justify-content: center;
   gap: 14px; padding: 60px 24px; border-bottom: 1px solid var(--line);
 }
 .m-card .display { font-size: clamp(34px, 10vw, 56px); line-height: 1; }
 .m-card .desc { font-size: 16px; color: var(--muted); max-width: 440px; }
 .m-card .link { color: var(--gold); }
+
+/* swipe-down flash cards: one full screen per card, snap one at a time */
+html.snap { scroll-snap-type: y proximity; }
+.snap .m-card { scroll-snap-align: start; scroll-snap-stop: always; min-height: 100vh; }
+
+/* ---- phone: distinct, looks-first card style (portrait) ---- */
+@media (max-width: 767px) {
+  .m-slides { padding: 0; }
+  .m-card {
+    justify-content: flex-end; gap: 16px; padding: 0 26px 16vh; border-bottom: none;
+    background:
+      radial-gradient(120% 60% at 50% 8%, rgba(255,128,38,.14), transparent 60%),
+      radial-gradient(140% 80% at 50% 120%, rgba(255,150,82,.10), transparent 70%);
+  }
+  .m-card::before {                       /* card index, e.g. 01 / 06 */
+    content: counter(card, decimal-leading-zero) " / 06";
+    position: absolute; top: 14vh; left: 26px;
+    font-family: var(--alt); font-size: 12px; letter-spacing: 3px; color: var(--gold);
+  }
+  .m-card::after {                        /* thin accent rule under the index */
+    content: ""; position: absolute; top: calc(14vh + 26px); left: 26px;
+    width: 38px; height: 2px; background: linear-gradient(90deg, var(--gold), transparent);
+  }
+  .m-card .eyebrow { font-size: 12px; }
+  .m-card .display { font-size: clamp(40px, 13vw, 66px); letter-spacing: -1px; }
+  .m-card .desc { font-size: 16px; line-height: 1.6; }
+  .m-card .link, .m-card .btn {
+    align-self: flex-start; margin-top: 6px;
+    padding: 11px 20px; border: 1px solid var(--gold); border-radius: 999px; color: var(--gold);
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .orb { animation: none; }

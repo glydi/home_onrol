@@ -3,9 +3,10 @@
 if (typeof window.__useHall === 'undefined') {
   const mq = (q) => !!(window.matchMedia && window.matchMedia(q).matches);
   const touch = mq('(pointer: coarse)');
-  window.__useHall = true;                          // hall on phone, iPad and desktop
+  window.__useHall = !touch;                        // touch -> flash-card deck; desktop -> hall
   window.__lowFx = mq('(prefers-reduced-motion: reduce)') || touch || (navigator.hardwareConcurrency || 8) <= 2;
   window.__touch = touch;
+  if (!window.__useHall) { document.body.classList.add('no-hall'); document.documentElement.classList.add('snap'); }
   if (window.__lowFx) document.body.classList.add('low-fx');
   if (touch) document.body.classList.add('touch');
 }
@@ -633,7 +634,7 @@ if (typeof window.__useHall === 'undefined') {
   window.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
 })();
 
-/* ===== Settings dropdown (theme · sound · scroll speed) ===== */
+/* ===== Settings dropdown (theme · scroll speed) ===== */
 (function () {
   const btn = document.getElementById('settingsBtn');
   const pop = document.getElementById('settingsPop');
@@ -694,33 +695,6 @@ if (typeof window.__useHall === 'undefined') {
     });
   }, { threshold: 0.4 });
   nums.forEach((n) => io.observe(n));
-})();
-
-/* ===== Sound: a single soft note on each slide (mute toggle) ===== */
-(function () {
-  const btn = document.getElementById('soundBtn');
-  if (!btn) return;
-  let on = false, ctx = null;
-  const NOTE = 392;   // single clean note (G4) — same every slide
-  function ensure() { if (!ctx) { try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} } }
-  function tone(f, dur, gain) {
-    if (!on || !ctx) return;
-    const o = ctx.createOscillator(), g = ctx.createGain();
-    o.type = 'sine'; o.frequency.value = f;
-    o.connect(g); g.connect(ctx.destination);
-    const t = ctx.currentTime;
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(gain || 0.05, t + 0.04);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + (dur || 0.6));
-    o.start(t); o.stop(t + (dur || 0.6) + 0.02);
-  }
-  btn.addEventListener('click', () => {
-    on = !on; ensure(); if (ctx && ctx.state === 'suspended') ctx.resume();
-    btn.style.color = on ? 'var(--bg)' : '';
-    btn.style.background = on ? 'var(--gold)' : '';
-    if (on) tone(NOTE, 0.4, 0.04);
-  });
-  document.addEventListener('onrol:slide', () => { tone(NOTE, 0.6, 0.045); });
 })();
 
 /* ===== Glow interaction: brighten + swell briefly on each slide =====
