@@ -874,3 +874,15 @@ if (typeof window.__useHall === 'undefined') {
   slides.addEventListener('touchend', endSwipe);
   slides.addEventListener('touchcancel', endSwipe);
 })();
+
+/* ===== Reel cards: randomize each card's glow position + drift timing ===== */
+(function () {
+  const cards = document.querySelectorAll('.m-card');
+  if (!cards.length) return;
+  cards.forEach((c) => {
+    c.style.setProperty('--gcx', (16 + Math.random() * 56).toFixed(0) + '%');
+    c.style.setProperty('--gcy', (14 + Math.random() * 46).toFixed(0) + '%');
+    c.style.setProperty('--gdur', (12 + Math.random() * 8).toFixed(0) + 's');
+    c.style.setProperty('--gdelay', (-Math.random() * 10).toFixed(1) + 's');
+  });
+})();
