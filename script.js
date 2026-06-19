@@ -835,21 +835,42 @@ if (typeof window.__useHall === 'undefined') {
   setTimeout(run, 2300);   // after the intro clears
 })();
 
-/* ===== Flash-card reels: mandatory snap WHILE in the cards, free scroll after
-   (so the lower sections aren't trapped by the card snap points) ===== */
+/* ===== Reels pager (touch): one deliberate swipe = one card (exactly like
+   reels). At the last card, an upward swipe falls through to native scroll so
+   the sections below stay reachable; scrolling back to the top re-engages. ===== */
 (function () {
   if (!document.documentElement.classList.contains('snap')) return;
   const slides = document.querySelector('.m-slides');
-  if (!slides) return;
-  const root = document.documentElement;
-  let snapped = null, ticking = false;
-  function update() {
-    ticking = false;
-    const end = slides.offsetTop + slides.offsetHeight - window.innerHeight * 0.6;
-    const within = window.scrollY < end;
-    if (within !== snapped) { snapped = within; root.style.scrollSnapType = within ? 'y mandatory' : 'none'; }
+  const track = document.getElementById('mTrack');
+  if (!slides || !track) return;
+  const N = track.querySelectorAll('.m-card').length;
+  let idx = 0;
+  function setIdx(i) {
+    idx = Math.max(0, Math.min(N - 1, i));
+    track.style.transform = 'translateY(-' + (idx / N * 100).toFixed(4) + '%)';
+    document.dispatchEvent(new CustomEvent('onrol:slide', { detail: idx }));
   }
-  window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
-  window.addEventListener('resize', update, { passive: true });
-  update();
+  setIdx(0);
+
+  let sy = 0, sx = 0, own = false, decided = false;
+  slides.addEventListener('touchstart', (e) => {
+    const t = e.touches[0]; sy = t.clientY; sx = t.clientX; own = false; decided = false;
+  }, { passive: true });
+  slides.addEventListener('touchmove', (e) => {
+    if (window.scrollY > 2) return;                       // scrolled into sections -> native scroll
+    const t = e.touches[0], dy = t.clientY - sy, dx = t.clientX - sx;
+    if (!decided && (Math.abs(dy) > 6 || Math.abs(dx) > 6)) {
+      decided = true;                                     // own only if it pages within the cards
+      own = Math.abs(dy) > Math.abs(dx) && ((dy < 0 && idx < N - 1) || (dy > 0 && idx > 0));
+    }
+    if (own) e.preventDefault();                          // block page scroll while paging a card
+  }, { passive: false });
+  function endSwipe(e) {
+    if (!own) return; own = false;
+    const t = (e.changedTouches && e.changedTouches[0]); if (!t) return;
+    const dy = t.clientY - sy;
+    if (Math.abs(dy) > 55) setIdx(idx + (dy < 0 ? 1 : -1));   // threshold = a deliberate swipe
+  }
+  slides.addEventListener('touchend', endSwipe);
+  slides.addEventListener('touchcancel', endSwipe);
 })();
