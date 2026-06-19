@@ -3,9 +3,10 @@
 if (typeof window.__useHall === 'undefined') {
   const mq = (q) => !!(window.matchMedia && window.matchMedia(q).matches);
   const touch = mq('(pointer: coarse)');
-  window.__useHall = true;                         // hall on phone, iPad and desktop
+  window.__useHall = !touch;                       // hall = desktop/mouse; touch -> vertical slides
   window.__lowFx = mq('(prefers-reduced-motion: reduce)') || touch || (navigator.hardwareConcurrency || 8) <= 2;
   window.__touch = touch;
+  if (!window.__useHall) document.body.classList.add('no-hall');
   if (window.__lowFx) document.body.classList.add('low-fx');
   if (touch) document.body.classList.add('touch');
 }
