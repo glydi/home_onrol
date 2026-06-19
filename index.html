@@ -35,14 +35,12 @@
       // laptops) so desktops render the SAME everywhere.
       var cores = navigator.hardwareConcurrency || 8;
       var lowFx = reduce || touch || cores <= 2;
-      // iOS can't scroll a pinned 3D scene smoothly, so the hall is desktop-only
-      // (mouse). Touch (phone + iPad) gets the smooth native-scroll vertical slides.
-      var useHall = !touch;
+      // 3D hall on EVERY device — phone, iPad and desktop. 'touch' applies the
+      // iOS-friendly trims (no grain, fewer sparkles, no drag) to keep it usable.
       var c = document.body.classList;
-      if (!useHall) c.add('no-hall');
       if (lowFx) c.add('low-fx');
       if (touch) c.add('touch');
-      window.__useHall = useHall;
+      window.__useHall = true;
       window.__lowFx = lowFx;
       window.__touch = touch;
     })();
