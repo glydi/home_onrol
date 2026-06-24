@@ -631,10 +631,11 @@ body.touch .settings__row--desktop { display: none; }   /* scroll-speed N/A on s
    (the "rings/lines" in the glow); it's a static overlay, so it's cheap. */
 body.low-fx .hdr { backdrop-filter: none; }
 body.low-fx .hall { animation: none; }
+body.low-fx .hall::after { display: none; }     /* drop the mix-blend grain (heavy on weak GPUs) */
+body.low-fx .vignette { display: none; }         /* one fewer full-screen layer */
 /* low-end: keep the cheap drift (compositor transform), drop the opacity twinkle */
 body.low-fx .spark { animation: sparkDrift var(--dr, 13s) ease-in-out var(--dl, 0s) infinite; opacity: .55; box-shadow: none; }
 body.low-fx .wall::before { animation: none; }
-body.low-fx .scroll-cue span { animation: none; }
 body.low-fx .bot__bubble, body.low-fx .bot__face { box-shadow: none; }
 
 /* ===== Build-with-AI demo ===== */
