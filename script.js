@@ -125,26 +125,27 @@ if (typeof window.__useHall === 'undefined') {
     return Math.min(i + f, C - 1) * SEG;
   }
 
-  // auto-downgrade on weak GPUs (e.g. an i3 / integrated graphics desktop):
-  // watch the real frame rate and, if it's low, trim the heavy graphics once.
-  let _t0 = performance.now(), _fr = 0, _slow = 0, _downgraded = TOUCH;
-  function fpsWatch() {
-    if (_downgraded) return;
+  // auto-downgrade on a genuinely weak GPU (e.g. i3 / integrated). Conservative:
+  // ignores the first 4s (load/intro), and only trims after a SUSTAINED low rate
+  // so it never fires on a capable desktop that just dipped during loading.
+  let _t0 = 0, _fr = 0, _slow = 0, _downgraded = TOUCH, _start = performance.now();
+  function fpsWatch(now) {
+    if (_downgraded || now - _start < 4000) return;     // warm-up grace period
+    if (!_t0) { _t0 = now; _fr = 0; return; }
     _fr++;
-    const now = performance.now();
     if (now - _t0 >= 1000) {
       const fps = _fr * 1000 / (now - _t0); _fr = 0; _t0 = now;
-      if (fps < 45) { if (++_slow >= 2) downgrade(); } else _slow = 0;
+      if (fps < 30) { if (++_slow >= 4) downgrade(); } else _slow = 0;   // ~4s of <30fps
     }
   }
   function downgrade() {
     _downgraded = true;
-    document.body.classList.add('low-fx');                       // drops grain, vignette, shadows
-    Array.prototype.forEach.call(ring.querySelectorAll('.spark'), (s) => s.remove());   // cut overdraw
+    document.body.classList.add('low-fx');
+    Array.prototype.forEach.call(ring.querySelectorAll('.spark'), (s) => s.remove());
   }
 
   function frame() {
-    fpsWatch();
+    fpsWatch(performance.now());
     const t = targetAngle();
     const k = TOUCH ? (dragging ? 0.32 : 0.17) : 0.09;   // snappy while dragging, smooth on snap
     angle += reduce ? (t - angle) : (t - angle) * k;
